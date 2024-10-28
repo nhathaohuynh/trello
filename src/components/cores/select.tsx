@@ -18,7 +18,7 @@ interface props {
 
 export default function SelectItem({ label, value, items, onChange }: props) {
 	return (
-		<FormControl sx={{ m: 1, minWidth: 120 }} size='small'>
+		<FormControl size='small' sx={{ m: 1, minWidth: '120px' }}>
 			<InputLabel id='select-label'>{label}</InputLabel>
 			<Select
 				labelId='select-label'
