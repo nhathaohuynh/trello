@@ -1,8 +1,44 @@
-/**
- * YouTube: TrungQuanDev - Một Lập Trình Viên
- * Created by trungquandev.com's author on Jun 28, 2023
- */
-export const mockData = {
+export interface AttachmentType {
+	attachment: string
+}
+
+export interface CommentType {
+	comment: string
+}
+
+export interface CardType {
+	_id: string
+	boardId: string
+	columnId: string
+	title: string
+	description: string | null
+	cover: string | null
+	memberIds: string[]
+	comments: string[]
+	attachments: string[]
+	FE_PLACEHOLDER?: boolean
+}
+
+export interface ColumnType {
+	_id: string
+	boardId: string
+	title: string
+	cardOrderIds: string[]
+	cards: CardType[]
+}
+
+export interface BoardType {
+	_id: string
+	title: string
+	description: string
+	type: 'public' | 'private'
+	ownerIds: string[]
+	memberIds: string[]
+	columnOrderIds: string[]
+	columns: ColumnType[]
+}
+
+export const mockData: { board: BoardType } = {
 	board: {
 		_id: 'board-id-01',
 		title: 'Huynh Hao MERN Stack Board',
@@ -10,7 +46,7 @@ export const mockData = {
 		type: 'public', // 'private'
 		ownerIds: [], // Những users là Admin của board
 		memberIds: [], // Những users là member bình thường của board
-		columnOrderIds: ['column-id-03', 'column-id-02', 'column-id-01'], // Thứ tự sắp xếp / vị trí của các Columns trong 1 boards
+		columnOrderIds: ['column-id-01', 'column-id-02', 'column-id-03'], // Thứ tự sắp xếp / vị trí của các Columns trong 1 boards
 		columns: [
 			{
 				_id: 'column-id-01',
@@ -23,7 +59,7 @@ export const mockData = {
 					'card-id-04',
 					'card-id-05',
 					'card-id-06',
-					'card-id-01',
+					'card-id-07',
 				],
 				cards: [
 					{
@@ -114,8 +150,24 @@ export const mockData = {
 				_id: 'column-id-02',
 				boardId: 'board-id-01',
 				title: 'Inprogress Column 02',
-				cardOrderIds: ['card-id-08', 'card-id-09', 'card-id-10'],
+				cardOrderIds: ['card-id-08', 'card-id-16', 'card-id-09', 'card-id-10'],
 				cards: [
+					{
+						_id: 'card-id-16',
+						boardId: 'board-id-01',
+						columnId: 'column-id-02',
+						title: 'Title of card 16',
+						description: 'Markdown Syntax (sẽ ở khóa nâng cao nhé)',
+						cover:
+							'https://trungquandev.com/wp-content/uploads/2022/07/fair-mern-stack-advanced-banner-trungquandev.jpg',
+						memberIds: ['test-user-id-01'],
+						comments: ['test comment 01', 'test comment 02'],
+						attachments: [
+							'test attachment 01',
+							'test attachment 02',
+							'test attachment 03',
+						],
+					},
 					{
 						_id: 'card-id-08',
 						boardId: 'board-id-01',

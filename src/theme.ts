@@ -109,6 +109,7 @@ const theme = createTheme({
 				},
 			},
 		},
+
 		MuiOutlinedInput: {
 			styleOverrides: {
 				root: ({ theme }) => {
@@ -121,8 +122,9 @@ const theme = createTheme({
 							},
 
 							'&:hover .MuiOutlinedInput-notchedOutline': {
-								borderColor: theme.palette.primary.main,
+								borderColor: theme.palette.primary.mainChannel,
 							},
+
 							'& fieldset': {
 								borderWidth: '1px !important',
 							},
@@ -136,8 +138,9 @@ const theme = createTheme({
 						},
 
 						'&:hover .MuiOutlinedInput-notchedOutline': {
-							borderColor: theme.palette.primary.main,
+							borderColor: theme.palette.primary.mainChannel,
 						},
+
 						'& fieldset': {
 							borderWidth: '1px !important',
 						},

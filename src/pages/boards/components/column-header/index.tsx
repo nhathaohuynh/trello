@@ -40,6 +40,9 @@ const HeaderColumn = ({ title }: props) => {
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'space-between',
+				bgcolor: 'primary.mainChannel',
+				borderTopLeftRadius: '6px',
+				borderTopRightRadius: '6px',
 			}}
 		>
 			<Button>
@@ -48,6 +51,8 @@ const HeaderColumn = ({ title }: props) => {
 					sx={{
 						fontWeight: 500,
 						cursor: 'pointer',
+						color: '#ffffff',
+						pointerEvents: 'none',
 					}}
 				>
 					{title}
@@ -62,10 +67,12 @@ const HeaderColumn = ({ title }: props) => {
 						aria-haspopup='true'
 						aria-expanded={open ? 'true' : undefined}
 						onClick={handleClick}
+						endIcon={<ExpandMore />}
 						size='small'
-					>
-						<ExpandMore />
-					</Button>
+						sx={{
+							color: '#ffffff',
+						}}
+					></Button>
 				</Tooltip>
 
 				<Menu

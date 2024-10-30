@@ -11,6 +11,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Tooltip from '@mui/material/Tooltip'
+import { BoardType } from '~/apis/mock-data'
 
 const MENU_STYLE = {
 	padding: 1,
@@ -27,7 +28,7 @@ const MENU_STYLE = {
 }
 
 interface BoardBarProps {
-	board: any
+	board: BoardType
 }
 
 const BoardBar = ({ board }: BoardBarProps) => {

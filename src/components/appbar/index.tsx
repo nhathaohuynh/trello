@@ -1,12 +1,20 @@
 import { NotificationsNone } from '@mui/icons-material'
 import Add from '@mui/icons-material/Add'
 import AppsIcon from '@mui/icons-material/Apps'
+import Close from '@mui/icons-material/Close'
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined'
 import HelpOutline from '@mui/icons-material/HelpOutline'
 import LightMode from '@mui/icons-material/LightMode'
+import Search from '@mui/icons-material/Search'
 import SettingsBrightness from '@mui/icons-material/SettingsBrightness'
 import SplitscreenIcon from '@mui/icons-material/Splitscreen'
-import { TextField, Tooltip, Typography, useColorScheme } from '@mui/material'
+import {
+	InputAdornment,
+	TextField,
+	Tooltip,
+	Typography,
+	useColorScheme,
+} from '@mui/material'
 import Badge from '@mui/material/Badge'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -98,10 +106,33 @@ function Appbar() {
 			</Box>
 			<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
 				<TextField
-					sx={{ minWidth: '120px' }}
+					sx={{
+						minWidth: '120px',
+						'& .MuiOutlinedInput-root': {
+							'&:hover fieldset': {
+								borderColor: 'primary.mainChannel',
+							},
+
+							'&.Mui-focused fieldset': {
+								borderColor: 'primary.mainChannel',
+							},
+						},
+					}}
 					id='outlined-multiline-flexible'
 					size='small'
-					label='Search'
+					placeholder='Search'
+					InputProps={{
+						startAdornment: (
+							<InputAdornment position='start'>
+								<Search sx={{ color: 'primary' }} />
+							</InputAdornment>
+						),
+						endAdornment: (
+							<InputAdornment position='end'>
+								<Close sx={{ color: 'primary' }} />
+							</InputAdornment>
+						),
+					}}
 				/>
 				<SelectItem
 					label='Mode'
