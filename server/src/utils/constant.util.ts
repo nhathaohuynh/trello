@@ -13,3 +13,9 @@ export const BOARD_TYPES = {
 }
 
 export const INVALID_UPDATE_FIELDS = ['_id', 'createdAt']
+
+export const NAME_SERVICE_INJECTION = {
+  BOARD_REPOSITORY: 'BoardService',
+  CARD_REPOSITORY: 'CardService',
+  COLUMN_REPOSITORY: 'ColumnService'
+}

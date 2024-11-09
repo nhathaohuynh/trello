@@ -5,9 +5,7 @@ import env from './env.config'
 
 export const corsOptions: CorsOptions = {
   origin(requestOrigin, callback) {
-    // Allow requests from postman
-    // normally postman will have orgin as undefined
-
+    // Allow requests from postman. Normally postman will have orgin as undefined
     if (!requestOrigin && env.BUILD_MODE === 'development') {
       return callback(null, true)
     }

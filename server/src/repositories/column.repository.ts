@@ -2,12 +2,7 @@
 import { injectable } from 'inversify'
 import { ObjectId } from 'mongodb'
 import { dbInstance } from '~/databases/database-connection'
-import {
-  COLUMN_COLLECTION_NAME,
-  COLUMN_COLLECTION_SCHEMA,
-  COLUMN_UPDATE_SCHEMA,
-  IColumn
-} from '~/databases/models/column.model'
+import { COLUMN_COLLECTION_NAME, COLUMN_COLLECTION_SCHEMA, IColumn } from '~/databases/models/column.model'
 import { IRepository } from '~/interface/base/IRepository.base'
 import { INVALID_UPDATE_FIELDS } from '~/utils/constant.util'
 
@@ -15,7 +10,6 @@ import { INVALID_UPDATE_FIELDS } from '~/utils/constant.util'
 export class ColumnRepository implements IRepository<IColumn> {
   constructor() {}
   async find(query: Partial<IColumn>, page: number, limit: number) {
-    // Implementation logic here...
     return { data: [], total: 0, page, limit }
   }
 
@@ -29,7 +23,7 @@ export class ColumnRepository implements IRepository<IColumn> {
     const data = await dbInstance
       .getDatabase()
       .collection(COLUMN_COLLECTION_NAME)
-      .findOne({ _id: new ObjectId(id) })
+      .findOne({ _id: new ObjectId(id.toString().trim()) })
     if (!data) return null
     return data as IColumn
   }
@@ -48,8 +42,7 @@ export class ColumnRepository implements IRepository<IColumn> {
   }
 
   async findByIdAndUpdate(id: ObjectId | string, queryUpdate: any, options?: any) {
-    const data = queryUpdate.$set | queryUpdate.$push | queryUpdate.$pull
-    await COLUMN_UPDATE_SCHEMA.validateAsync(data, { abortEarly: false })
+    const data = queryUpdate['$set'] || queryUpdate['$push'] || queryUpdate['$pull']
 
     Object.keys(data).forEach((key) => {
       if (INVALID_UPDATE_FIELDS.includes(key)) {
@@ -61,7 +54,7 @@ export class ColumnRepository implements IRepository<IColumn> {
       .getDatabase()
       .collection(COLUMN_COLLECTION_NAME)
       .findOneAndUpdate({ _id: new ObjectId(id) }, queryUpdate, options)
-    return JSON.parse(JSON.stringify(res)) as IColumn // Example return
+    return JSON.parse(JSON.stringify(res)) as IColumn
   }
 
   async findByIdAndDelete(id: ObjectId | string) {
@@ -69,6 +62,6 @@ export class ColumnRepository implements IRepository<IColumn> {
       .getDatabase()
       .collection(COLUMN_COLLECTION_NAME)
       .findOneAndDelete({ _id: new ObjectId(id) })
-    return res?._id.toString() || null // Example return
+    return res?._id.toString() || null
   }
 }

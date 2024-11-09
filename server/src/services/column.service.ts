@@ -1,20 +1,24 @@
 import { inject, injectable } from 'inversify'
+import { ObjectId } from 'mongodb'
 import { ICard } from '~/databases/models/card.model'
 import { IColumn } from '~/databases/models/column.model'
 import { ColumnRepository } from '~/repositories/column.repository'
+import { NAME_SERVICE_INJECTION } from '~/utils/constant.util'
 import { BadRequest } from '~/utils/error-response.util'
 import { BoardService } from './board.service'
 
 const CONSTANT = {
   MSG_CREATE_COLUMN_FAILED: 'Failed to create Column',
   MSG_COLUMN_NOT_FOUND: 'Column not found',
-  MSG_BOARD_NOT_FOUND: 'Board not found'
+  MSG_BOARD_NOT_FOUND: 'Board not found',
+  MSG_COLUMN_PUSH_CARD_IDS_FAILED: 'Failed to push card ids',
+  MSG_COLUMN_PULL_CARD_IDS_FAILED: 'Failed to pull card ids'
 }
 
 @injectable()
 export class ColumnService {
   constructor(
-    @inject('ColumnRepository') private readonly columnRepository: ColumnRepository,
+    @inject(NAME_SERVICE_INJECTION.COLUMN_REPOSITORY) private readonly columnRepository: ColumnRepository,
     @inject(BoardService) private readonly boardService: BoardService
   ) {}
 
@@ -47,13 +51,13 @@ export class ColumnService {
 
   async pushColumnIds(columnId: string, cardId: string) {
     const res = await this.columnRepository.findByIdAndUpdate(
-      columnId,
-      { $push: { cardOrderIds: cardId } },
+      new ObjectId(columnId),
+      { $push: { cardOrderIds: new ObjectId(cardId) } },
       { returnDocument: 'after' }
     )
 
     if (!res) {
-      throw new BadRequest('Failed to push cards ids')
+      throw new BadRequest(CONSTANT.MSG_COLUMN_PUSH_CARD_IDS_FAILED)
     }
 
     return res
@@ -107,5 +111,47 @@ export class ColumnService {
     )
 
     return res._id
+  }
+
+  async moveCardBetweenColumns(body: {
+    cardId: string
+    columnId: string
+    newColumnId: string
+    cardOrderIds: string[]
+  }) {
+    const { cardId, columnId, newColumnId, cardOrderIds } = body
+
+    const column = await this.findColumnById(columnId)
+    const newColumn = await this.findColumnById(newColumnId)
+
+    if (!column || !newColumn) {
+      throw new BadRequest(CONSTANT.MSG_COLUMN_NOT_FOUND)
+    }
+
+    const res = await this.columnRepository.findByIdAndUpdate(
+      columnId,
+      {
+        $pull: { cardOrderIds: cardId }
+      },
+      { returnDocument: 'after' }
+    )
+
+    if (!res) {
+      throw new BadRequest(CONSTANT.MSG_COLUMN_PULL_CARD_IDS_FAILED)
+    }
+
+    const resNewColumn = await this.columnRepository.findByIdAndUpdate(
+      newColumnId,
+      {
+        $set: { cardOrderIds: cardOrderIds }
+      },
+      { returnDocument: 'after' }
+    )
+
+    if (!resNewColumn) {
+      throw new BadRequest(CONSTANT.MSG_COLUMN_PUSH_CARD_IDS_FAILED)
+    }
+
+    return resNewColumn._id
   }
 }

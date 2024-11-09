@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express'
+import express from 'express'
 import { container } from '~/config/inversify.config'
 import { BoardController } from '../controllers/board.controller'
 import { catchErrorHandler } from '../middlewares/catch-error-handler'
@@ -10,11 +10,7 @@ const RouteBoard = express.Router()
 const boardController = container.get<BoardController>(BoardController)
 
 RouteBoard.route(ROUTE_APP.boards.child.getList.path)
-  .get(
-    catchErrorHandler(async (req: Request, res: Response) => {
-      res.status(200).json({ message: 'Hello World' })
-    })
-  )
+  .get()
   .post(validationPipe, catchErrorHandler(boardController.createBoard.bind(boardController)))
 
 RouteBoard.route(ROUTE_APP.boards.child.getById.path)

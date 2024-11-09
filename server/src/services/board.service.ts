@@ -3,18 +3,21 @@ import { IBoard } from '~/databases/models/board.model'
 import { ICard } from '~/databases/models/card.model'
 import { IColumn } from '~/databases/models/column.model'
 import { BoardRepository } from '~/repositories/board.repository'
+import { NAME_SERVICE_INJECTION } from '~/utils/constant.util'
 import { BadRequest, NotFoundError } from '~/utils/error-response.util'
 import { slugify } from '~/utils/formatter.util'
 
 const CONSTANT = {
   MSG_CREATE_BOARD_FAILED: 'Failed to create board',
   MSG_BOARD_NOT_FOUND: 'Board not found',
-  MSG_UPDATE_BOARD_FAILED: 'Failed to update board'
+  MSG_UPDATE_BOARD_FAILED: 'Failed to update board',
+  MSG_DELETE_BOARD_FAILED: 'Failed to delete board',
+  MSG_PUSH_COLUMN_IDS_FAILED: 'Failed to push column order ids'
 }
 
 @injectable()
 export class BoardService {
-  constructor(@inject('BoardRepository') private readonly boardRepository: BoardRepository) {}
+  constructor(@inject(NAME_SERVICE_INJECTION.BOARD_REPOSITORY) private readonly boardRepository: BoardRepository) {}
 
   async createBoard(body: IBoard) {
     const idBoard = await this.boardRepository.create({ ...body, slug: slugify(body.title) })
@@ -32,15 +35,14 @@ export class BoardService {
       throw new NotFoundError(CONSTANT.MSG_BOARD_NOT_FOUND)
     }
 
-    // Deep clone boardDetail to prevent mutation
     const resBoard: IBoard & { columns: (IColumn & { cards: ICard[] })[] } = JSON.parse(JSON.stringify(boardDetail))
 
-    // Map cards to columns
     resBoard.columns = resBoard.columns.map((column: IColumn & { cards: ICard[] }) => {
       column.cards = resBoard.cards.filter((card: ICard) => card.columnId === column._id)
       return column
     })
 
+    resBoard.cards = undefined
     return resBoard
   }
 
@@ -76,7 +78,7 @@ export class BoardService {
     )
 
     if (!res) {
-      throw new BadRequest('Failed to push column order ids')
+      throw new BadRequest(CONSTANT.MSG_PUSH_COLUMN_IDS_FAILED)
     }
 
     return res
@@ -105,7 +107,7 @@ export class BoardService {
     )
 
     if (!res) {
-      throw new BadRequest('Failed to delete board')
+      throw new BadRequest(CONSTANT.MSG_DELETE_BOARD_FAILED)
     }
 
     return res._id

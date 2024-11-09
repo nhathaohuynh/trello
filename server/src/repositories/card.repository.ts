@@ -11,7 +11,6 @@ import { IRepository } from '~/interface/base/IRepository.base'
 export class CardRepository implements IRepository<ICard> {
   constructor() {}
   async find(query: Partial<ICard>, page: number, limit: number) {
-    // Implementation logic here...
     return { data: [], total: 0, page, limit }
   }
 
@@ -41,6 +40,7 @@ export class CardRepository implements IRepository<ICard> {
         columnId: new ObjectId(validData.columnId),
         boardId: new ObjectId(validData.boardId)
       })
+
     return result.acknowledged ? result.insertedId : null
   }
 
@@ -49,7 +49,7 @@ export class CardRepository implements IRepository<ICard> {
       .getDatabase()
       .collection(CARD_COLLECTION_NAME)
       .findOneAndUpdate({ _id: new ObjectId(id) }, queryUpdate, options)
-    return (res.value as ICard) || null // Example return
+    return JSON.parse(JSON.stringify(res)) as ICard
   }
 
   async findByIdAndDelete(id: ObjectId | string) {
@@ -57,6 +57,6 @@ export class CardRepository implements IRepository<ICard> {
       .getDatabase()
       .collection(CARD_COLLECTION_NAME)
       .findOneAndDelete({ _id: new ObjectId(id) })
-    return res?._id.toString() || null // Example return
+    return res?._id.toString() || null
   }
 }

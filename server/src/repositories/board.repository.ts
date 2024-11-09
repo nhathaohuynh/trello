@@ -2,12 +2,7 @@
 import { injectable } from 'inversify'
 import { ObjectId } from 'mongodb'
 import { dbInstance } from '~/databases/database-connection'
-import {
-  BOARD_COLLECTION_NAME,
-  BOARD_COLLECTION_SCHEMA,
-  BOARD_UPDATE_SCHEMA,
-  IBoard
-} from '~/databases/models/board.model'
+import { BOARD_COLLECTION_NAME, BOARD_COLLECTION_SCHEMA, IBoard } from '~/databases/models/board.model'
 import { CARD_COLLECTION_NAME } from '~/databases/models/card.model'
 import { COLUMN_COLLECTION_NAME } from '~/databases/models/column.model'
 import { IRepository } from '~/interface/base/IRepository.base'
@@ -17,7 +12,6 @@ import { INVALID_UPDATE_FIELDS } from '~/utils/constant.util'
 export class BoardRepository implements IRepository<IBoard> {
   constructor() {}
   async find(query: Partial<IBoard>, page: number, limit: number) {
-    // Implementation logic here...
     return { data: [], total: 0, page, limit }
   }
 
@@ -75,7 +69,6 @@ export class BoardRepository implements IRepository<IBoard> {
 
   async findByIdAndUpdate(id: ObjectId | string, queryUpdate: any, options?: any) {
     const data = queryUpdate.$set | queryUpdate.$push | queryUpdate.$pull
-    await BOARD_UPDATE_SCHEMA.validateAsync(data, { abortEarly: false })
 
     Object.keys(data).forEach((key) => {
       if (INVALID_UPDATE_FIELDS.includes(key)) {
@@ -88,7 +81,7 @@ export class BoardRepository implements IRepository<IBoard> {
       .collection(BOARD_COLLECTION_NAME)
       .findOneAndUpdate({ _id: new ObjectId(id) }, queryUpdate, options)
 
-    return JSON.parse(JSON.stringify(res)) as IBoard // Example return
+    return JSON.parse(JSON.stringify(res)) as IBoard
   }
 
   async findByIdAndDelete(id: ObjectId | string) {
@@ -96,6 +89,6 @@ export class BoardRepository implements IRepository<IBoard> {
       .getDatabase()
       .collection(BOARD_COLLECTION_NAME)
       .findOneAndDelete({ _id: new ObjectId(id) })
-    return res?._id.toString() || null // Example return
+    return res?._id.toString() || null
   }
 }

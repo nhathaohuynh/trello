@@ -53,6 +53,10 @@ export const ROUTE_APP = {
         path: '',
         method: 'POST'
       },
+      moveCardBetweenColumns: {
+        path: '/move-card-between-columns',
+        method: 'PUT'
+      },
       getList: {
         path: '',
         method: 'GET'

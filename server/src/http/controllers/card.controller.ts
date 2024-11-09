@@ -20,4 +20,9 @@ export class CardController {
     const data = await this.cardService.deleteCard(req.params.id)
     return new CreatedResponse(data).send(res)
   }
+
+  async updateCard(req: Request, res: Response) {
+    const data = await this.cardService.updateCard(req.params.id, req.body)
+    return new CreatedResponse(data).send(res)
+  }
 }

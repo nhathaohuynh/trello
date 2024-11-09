@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify'
 import { ICard } from '~/databases/models/card.model'
 import { CardRepository } from '~/repositories/card.repository'
+import { NAME_SERVICE_INJECTION } from '~/utils/constant.util'
 import { BadRequest } from '~/utils/error-response.util'
 import { ColumnService } from './column.service'
 
@@ -8,13 +9,14 @@ const CONSTANT = {
   MSG_CREATE_CARD_FAILED: 'Failed to create card',
   MSG_COLUMN_NOT_FOUND: 'column not found',
   MSG_CARD_NOT_FOUND: 'card not found',
-  MGS_CARD_DELETE_FAILED: 'Failed to delete card'
+  MGS_CARD_DELETE_FAILED: 'Failed to delete card',
+  MSG_CREATE_UPDATE_FAILED: 'Failed to update card'
 }
 
 @injectable()
 export class CardService {
   constructor(
-    @inject('CardRepository') private readonly cardRepository: CardRepository,
+    @inject(NAME_SERVICE_INJECTION.CARD_REPOSITORY) private readonly cardRepository: CardRepository,
     @inject(ColumnService) private readonly columnService: ColumnService
   ) {}
 
@@ -39,6 +41,26 @@ export class CardService {
     await this.columnService.pushColumnIds(body.columnId.toString(), idCard.toString())
 
     return card
+  }
+
+  async updateCard(cardId: string, body: Partial<ICard>) {
+    const card = await this.cardRepository.findById(cardId)
+
+    if (!card) {
+      throw new BadRequest(CONSTANT.MSG_CARD_NOT_FOUND)
+    }
+
+    const res = await this.cardRepository.findByIdAndUpdate(
+      cardId,
+      { $set: { ...body, updatedAt: Date.now() } },
+      { returnDocument: 'after' }
+    )
+
+    if (!res) {
+      throw new BadRequest(CONSTANT.MSG_CREATE_UPDATE_FAILED)
+    }
+
+    return res
   }
 
   async deleteCard(cardId: string) {
