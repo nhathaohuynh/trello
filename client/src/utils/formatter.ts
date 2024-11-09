@@ -1,4 +1,4 @@
-import { ColumnType } from '~/apis/mock-data'
+import { IColumn } from '~/interfaces/board.interface'
 
 export const capitalize = (str: string) => {
 	if (!str) return ''
@@ -21,17 +21,32 @@ export const mapOrder = <T, K extends keyof T>(
 	return orderedArray
 }
 
-export const generatePlaceholderCard = (column: ColumnType) => {
+export const generatePlaceholderCard = (column: IColumn) => {
 	return {
 		_id: `${column._id}-placeholder-card`,
 		boardId: column.boardId,
 		columnId: column._id,
 		FE_PLACEHOLDER: true,
-		title: '',
+		title: 'Empty Column',
 		description: null,
 		cover: null,
 		memberIds: [],
 		comments: [],
 		attachments: [],
+	}
+}
+
+export const interceptorLoadingElement = (calling: boolean) => {
+	const elements = document.querySelectorAll<HTMLElement>(
+		'.interceptor-loading',
+	)
+	for (let i = 0; i < elements.length; i++) {
+		if (calling) {
+			elements[i].style.opacity = '0.7'
+			elements[i].style.pointerEvents = 'none'
+		} else {
+			elements[i].style.opacity = 'initial'
+			elements[i].style.pointerEvents = 'initial'
+		}
 	}
 }

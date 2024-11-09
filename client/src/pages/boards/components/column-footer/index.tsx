@@ -2,11 +2,18 @@ import AddCard from '@mui/icons-material/AddCard'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { toast } from 'react-toastify'
 
-const FooterColumn = () => {
-	const [cardTitle, setCardTitle] = useState<string | null>()
+interface props {
+	columnId: string
+	handleAddCard: (columnId: string, title: string) => Promise<void>
+}
+
+const FooterColumn = ({ handleAddCard, columnId }: props) => {
+	const [cardTitle, setCardTitle] = useState<string>('')
 	const [isToggleCardForm, setIsToggleCardForm] = useState<boolean>(false)
+	const inputRef = useRef<HTMLInputElement>(null)
 	return (
 		<Box
 			sx={{
@@ -17,52 +24,92 @@ const FooterColumn = () => {
 				bgcolor: 'primary.mainChannel',
 				borderBottomLeftRadius: '6px',
 				borderBottomRightRadius: '6px',
-				maxHeight: isToggleCardForm ? '56px' : 'inherit',
-				minHeight: isToggleCardForm ? '56px' : 'inherit',
 				padding: '0 12px',
 			}}
 		>
 			{isToggleCardForm ? (
-				<TextField
+				<Box
 					sx={{
-						width: '100%',
-						'& input': {
-							color: 'white',
-						},
-						'& label': {
-							color: 'white',
-						},
-						'& label.Mui-focused': {
-							color: 'white',
-						},
-						'& .MuiOutlinedInput-root': {
-							'& fieldset': {
-								borderColor: 'white',
-							},
-							'&:hover fieldset': {
-								borderColor: 'white',
-							},
+						display: 'flex',
+						alignItems: 'center',
+					}}
+				>
+					<TextField
+						sx={{
+							width: '100%',
 
-							'&.Mui-focused fieldset': {
-								borderColor: 'white',
+							'& input': {
+								color: 'white',
+								fontSize: '12px',
+								height: '12px',
 							},
-						},
-					}}
-					size='small'
-					type='text'
-					label='Enter card content'
-					autoFocus
-					variant='outlined'
-					data-no-dnd='true'
-					value={cardTitle}
-					onChange={(e) => setCardTitle(e.target.value)}
-					onKeyDown={(e) => {
-						if (e.key === 'Enter') {
+							'& input::placeholder': {
+								color: 'white',
+								fontSize: '12px',
+							},
+							'& label.Mui-focused': {
+								color: 'white',
+								fontSize: '14px',
+							},
+							'& .MuiOutlinedInput-root': {
+								'& fieldset': {
+									borderColor: 'white',
+								},
+								'&:hover fieldset': {
+									borderColor: 'white',
+								},
+
+								'&.Mui-focused fieldset': {
+									borderColor: 'white',
+								},
+							},
+						}}
+						size='small'
+						type='text'
+						placeholder='Enter a title for card...'
+						autoFocus
+						variant='outlined'
+						ref={inputRef}
+						data-no-dnd='true'
+						value={cardTitle}
+						onChange={(e) => {
+							setCardTitle(e.target.value)
+						}}
+					/>
+					<Button
+						sx={{
+							color: '#ffffff',
+							fontWeight: 400,
+							fontSize: '10px',
+							bgcolor: 'success.main',
+							mx: '4px',
+						}}
+						className='interceptor-loading'
+						onClick={() => {
+							if (!cardTitle)
+								return toast.error('Please enter a title for card')
+							handleAddCard(columnId, cardTitle)
 							setCardTitle('')
+							inputRef.current?.focus()
+						}}
+					>
+						Add
+					</Button>
+
+					<Button
+						sx={{
+							color: '#ffffff',
+							fontWeight: 400,
+							fontSize: '10px',
+							bgcolor: 'error.main',
+						}}
+						onClick={() => {
 							setIsToggleCardForm(false)
-						}
-					}}
-				/>
+						}}
+					>
+						Cancel
+					</Button>
+				</Box>
 			) : (
 				<Button
 					sx={{
@@ -74,7 +121,7 @@ const FooterColumn = () => {
 					startIcon={<AddCard />}
 					onClick={() => setIsToggleCardForm(true)}
 				>
-					Add new card
+					New card
 				</Button>
 			)}
 		</Box>

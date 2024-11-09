@@ -2,17 +2,17 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import Box from '@mui/material/Box'
-import { ColumnType } from '~/apis/mock-data'
-import { mapOrder } from '~/utils/formatter'
+import { IColumn } from '~/interfaces/board.interface'
 import Cards from '../cards'
 import FooterColumn from '../column-footer'
 import HeaderColumn from '../column-header'
 
 interface props {
-	column: ColumnType
+	column: IColumn
+	handleAddCard: (columnId: string, title: string) => Promise<void>
 }
 
-const Column = ({ column }: props) => {
+const Column = ({ column, handleAddCard }: props) => {
 	// drag and drop
 	const {
 		attributes,
@@ -30,9 +30,6 @@ const Column = ({ column }: props) => {
 		height: '100%',
 		opacity: isDragging ? 0.5 : 1,
 	}
-
-	// sort cards
-	const sortedCards = mapOrder(column.cards, column?.cardOrderIds, '_id')
 
 	return (
 		<div ref={setNodeRef} {...attributes} style={dndkitColumnStyle}>
@@ -57,11 +54,10 @@ const Column = ({ column }: props) => {
 
 				{/* card  */}
 
-				<Cards cards={sortedCards} />
+				<Cards cards={column.cards} />
 
 				{/* footer */}
-
-				<FooterColumn />
+				<FooterColumn handleAddCard={handleAddCard} columnId={column._id} />
 			</Box>
 		</div>
 	)

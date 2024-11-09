@@ -11,7 +11,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Tooltip from '@mui/material/Tooltip'
-import { BoardType } from '~/apis/mock-data'
+import { IBoard } from '~/interfaces/board.interface'
 
 const MENU_STYLE = {
 	padding: 1,
@@ -28,7 +28,7 @@ const MENU_STYLE = {
 }
 
 interface BoardBarProps {
-	board: BoardType
+	board: IBoard
 }
 
 const BoardBar = ({ board }: BoardBarProps) => {
@@ -62,14 +62,14 @@ const BoardBar = ({ board }: BoardBarProps) => {
 					sx={MENU_STYLE}
 					clickable
 					icon={<Dashboard />}
-					label={board.title}
+					label={board?.title}
 				/>
 
 				<Chip
 					sx={MENU_STYLE}
 					clickable
 					icon={<VpnLock />}
-					label={capitalize(board.type)}
+					label={capitalize(board?.type)}
 				/>
 
 				<Chip

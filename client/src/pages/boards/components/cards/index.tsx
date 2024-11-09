@@ -1,14 +1,14 @@
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import Box from '@mui/material/Box'
-import { CardType } from '~/apis/mock-data'
+import { ICard } from '~/interfaces/board.interface'
 import CardItem from '../card-item'
 
 interface props {
-	cards: CardType[]
+	cards: ICard[]
 }
 
 const Cards = ({ cards }: props) => {
-	const items = cards?.map((card: CardType) => card._id)
+	const items = cards?.map((card: ICard) => card._id)
 	return (
 		<SortableContext items={items} strategy={verticalListSortingStrategy}>
 			<Box
@@ -17,7 +17,7 @@ const Cards = ({ cards }: props) => {
 					flexDirection: 'column',
 					gap: 1,
 					p: '8px 5px',
-					m: '0 5px',
+					m: '5px 5px',
 					overflowX: 'hidden',
 					overflowY: 'auto',
 					maxHeight: (theme) =>
@@ -26,7 +26,7 @@ const Cards = ({ cards }: props) => {
 						)})`,
 				}}
 			>
-				{cards?.map((card: CardType) => (
+				{cards?.map((card: ICard) => (
 					<CardItem key={card._id} card={card} />
 				))}
 			</Box>

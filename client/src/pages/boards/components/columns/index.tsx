@@ -6,18 +6,23 @@ import NoteAdd from '@mui/icons-material/NoteAdd'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import { useState } from 'react'
-import { ColumnType } from '~/apis/mock-data'
+import { useRef, useState } from 'react'
+import { toast } from 'react-toastify'
+import { IColumn } from '~/interfaces/board.interface'
 import Column from '../column'
 
 interface props {
-	columns: ColumnType[]
+	columns: IColumn[]
+	handleAddColumn: (title: string) => Promise<void>
+	handleAddCard: (columnId: string, title: string) => Promise<void>
 }
 
-const Columns = ({ columns }: props) => {
-	const [columTitle, setColumTitle] = useState<string | null>()
+const Columns = ({ columns, handleAddColumn, handleAddCard }: props) => {
+	const [columTitle, setColumTitle] = useState<string>('')
 	const [isToggleColumForm, setIsTonggleColumForm] = useState<boolean>(false)
-	const items = columns?.map((column: ColumnType) => column._id)
+	const items = columns?.map((column: IColumn) => column._id)
+	const inputRef = useRef<HTMLInputElement>(null)
+
 	return (
 		<SortableContext items={items} strategy={horizontalListSortingStrategy}>
 			<Box
@@ -41,22 +46,25 @@ const Columns = ({ columns }: props) => {
 						},
 					}}
 				>
-					{columns?.map((column: ColumnType) => (
-						<Column key={column._id} column={column} />
+					{columns?.map((column: IColumn) => (
+						<Column
+							key={column._id}
+							column={column}
+							handleAddCard={handleAddCard}
+						/>
 					))}
 
 					{isToggleColumForm ? (
 						<Box
 							sx={{
-								minWidth: '300px',
-								maxWidth: '300px',
+								minWidth: '350px',
+								maxWidth: '350px',
 								mx: 2,
 								p: 1,
 								borderRadius: '6px',
 								height: 'fit-content',
 								bgcolor: 'primary.mainChannel',
 								display: 'flex',
-								gap: 1,
 							}}
 						>
 							<TextField
@@ -64,12 +72,16 @@ const Columns = ({ columns }: props) => {
 									width: '100%',
 									'& input': {
 										color: 'white',
+										height: '14px',
+										fontSize: '12px',
 									},
 									'& label': {
 										color: 'white',
+										fontSize: '12px',
 									},
 									'& label.Mui-focused': {
 										color: 'white',
+										fontSize: '14px',
 									},
 									'& .MuiOutlinedInput-root': {
 										'& fieldset': {
@@ -85,25 +97,54 @@ const Columns = ({ columns }: props) => {
 									},
 								}}
 								size='small'
+								ref={inputRef}
 								type='text'
-								label='Enter column title'
+								placeholder='Enter a title for column...'
 								autoFocus
 								variant='outlined'
 								value={columTitle}
 								onChange={(e) => setColumTitle(e.target.value)}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter') {
-										setColumTitle('')
-										setIsTonggleColumForm(false)
-									}
-								}}
 							/>
+
+							<Button
+								className='interceptor-loading'
+								sx={{
+									color: '#ffffff',
+									fontWeight: 400,
+									fontSize: '10px',
+									bgcolor: 'success.main',
+									mx: '4px',
+								}}
+								onClick={() => {
+									if (!columTitle)
+										return toast.error('Please enter a title for column')
+									handleAddColumn(columTitle)
+									setColumTitle('')
+									inputRef.current?.focus()
+								}}
+							>
+								Add
+							</Button>
+
+							<Button
+								sx={{
+									color: '#ffffff',
+									fontWeight: 400,
+									fontSize: '10px',
+									bgcolor: 'error.main',
+								}}
+								onClick={() => {
+									setIsTonggleColumForm(false)
+								}}
+							>
+								Cancel
+							</Button>
 						</Box>
 					) : (
 						<Box
 							sx={{
 								minWidth: '300px',
-								maxWidth: '250px',
+								maxWidth: '300px',
 								mx: 3,
 								borderRadius: '6px',
 								height: 'fit-content',
@@ -121,7 +162,7 @@ const Columns = ({ columns }: props) => {
 								}}
 								startIcon={<NoteAdd />}
 							>
-								Add new column
+								New column
 							</Button>
 						</Box>
 					)}

@@ -9,12 +9,11 @@ import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
-import { CardType } from '~/apis/mock-data'
+import { ICard } from '~/interfaces/board.interface'
 
 interface props {
-	card: CardType
+	card: ICard
 }
-
 function CardItem({ card }: props) {
 	const {
 		attributes,
@@ -33,9 +32,9 @@ function CardItem({ card }: props) {
 	}
 
 	const shouldShowCardAction =
-		!!card?.memberIds.length ||
-		!!card?.comments.length ||
-		!!card?.attachments.length
+		!!card?.memberIds?.length ||
+		!!card?.comments?.length ||
+		!!card?.attachments?.length
 	return (
 		<Card
 			ref={setNodeRef}
@@ -43,14 +42,16 @@ function CardItem({ card }: props) {
 			{...listeners}
 			style={dndkitCardStyle}
 			sx={{
+				'&:hover': {
+					border: '1px solid #0000002f',
+				},
+				border: '1px solid transparent',
 				cursor: 'pointer',
 				boxShadow: card?.FE_PLACEHOLDER
 					? 'unset'
 					: '0 1px 1px 0 rgb(0 0 0 / 20%)',
 				overflow: card?.FE_PLACEHOLDER ? 'hidden' : 'unset',
-				height: card?.FE_PLACEHOLDER ? '30px' : 'unset',
 				pointerEvents: card?.FE_PLACEHOLDER ? 'none' : 'unset',
-				backgroundColor: card?.FE_PLACEHOLDER ? 'transparent' : '#fff3d',
 			}}
 		>
 			{card?.cover && (
