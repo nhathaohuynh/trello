@@ -11,7 +11,6 @@ export interface ICard {
 	boardId: string
 	columnId: string
 	title: string
-	description: string | null
 	cover: string | null
 	memberIds: string[]
 	comments: string[]
@@ -22,6 +21,7 @@ export interface ICard {
 export interface IColumn {
 	_id: string
 	boardId: string
+	description: string
 	title: string
 	cardOrderIds: string[]
 	cards: ICard[]
@@ -38,7 +38,7 @@ export interface IBoard {
 	columns: IColumn[]
 }
 
-export type ICreateColumn = Pick<IColumn, 'title' | 'boardId'>
+export type ICreateColumn = Pick<IColumn, 'title' | 'boardId' | 'description'>
 
 export type ICreateCard = Pick<ICard, 'title' | 'columnId' | 'boardId'>
 

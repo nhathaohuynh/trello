@@ -1,7 +1,9 @@
 import { Close } from '@mui/icons-material'
+import Cloud from '@mui/icons-material/Cloud'
 import {
 	Box,
 	Button,
+	CardMedia,
 	Dialog,
 	DialogActions,
 	DialogContent,
@@ -26,6 +28,7 @@ const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 	const [description, setDescription] = useState('')
 	const [isPublic, setIsPublic] = useState(true)
 	const [error, setError] = useState('')
+	const [coverImage, setCoverImage] = useState<File | null>(null)
 
 	const handleSubmit = () => {
 		// Validate input
@@ -49,6 +52,13 @@ const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 		onClose()
 	}
 
+	// Handle image upload
+	const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+		if (event.target.files && event.target.files[0]) {
+			setCoverImage(event.target.files[0])
+		}
+	}
+
 	return (
 		<Dialog open={open} fullWidth maxWidth='sm'>
 			<DialogTitle
@@ -56,15 +66,17 @@ const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 					display: 'flex',
 					justifyContent: 'space-between',
 					alignItems: 'center',
+					bgcolor: 'primary.mainChannel',
+					py: 1.5,
 				}}
 			>
 				<Typography
 					variant='h6'
 					sx={{
-						color: 'primary.mainChannel',
+						color: 'white',
 					}}
 				>
-					Create New Board
+					New board
 				</Typography>
 				<Box
 					onClick={onClose}
@@ -87,11 +99,15 @@ const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 					/>
 				</Box>
 			</DialogTitle>
-			<DialogContent>
+			<DialogContent
+				sx={{
+					bgcolor: 'background.default',
+				}}
+			>
 				<Box sx={{ mt: 2 }}>
 					<TextField
 						fullWidth
-						label='Board title'
+						label='Board name'
 						variant='outlined'
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
@@ -113,6 +129,68 @@ const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 						helperText={error.includes('Description') ? error : ''}
 					/>
 
+					<Box
+						sx={{
+							my: 2,
+							textAlign: 'center',
+							display: 'flex',
+							justifyContent: 'space-between',
+							flexDirection: 'column',
+							alignItems: 'start',
+							gap: 2,
+						}}
+					>
+						<Box sx={{ flex: '1' }}>
+							<Button
+								variant='contained'
+								startIcon={<Cloud />}
+								component='label'
+								sx={{
+									bgcolor: 'primary.mainChannel',
+									color: 'white',
+									px: 4,
+									py: 1.5,
+									width: '100%',
+									height: '36px',
+									borderRadius: 2,
+									textTransform: 'none',
+									boxShadow: 3,
+								}}
+							>
+								Upload cover image
+								<input
+									type='file'
+									hidden
+									accept='image/*'
+									onChange={handleImageUpload}
+								/>
+							</Button>
+						</Box>
+
+						{/* Display image preview if a cover image is selected */}
+						{coverImage && (
+							<Box
+								sx={{
+									flex: '1',
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									width: '100%',
+								}}
+							>
+								<CardMedia
+									component='img'
+									image={URL.createObjectURL(coverImage)}
+									sx={{
+										width: '100%',
+										height: '200px',
+										borderRadius: 2,
+									}}
+								/>
+							</Box>
+						)}
+					</Box>
+
 					<FormControl
 						component='fieldset'
 						sx={{
@@ -132,11 +210,21 @@ const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 								value='public'
 								control={<Radio color='primary' />}
 								label='Public'
+								sx={{
+									'& span': {
+										fontSize: '14px',
+									},
+								}}
 							/>
 							<FormControlLabel
 								value='private'
 								control={<Radio color='primary' />}
 								label='Private'
+								sx={{
+									'& span': {
+										fontSize: '14px',
+									},
+								}}
 							/>
 						</RadioGroup>
 
@@ -145,11 +233,12 @@ const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 								onClick={handleSubmit}
 								sx={{
 									bgcolor: 'primary.mainChannel',
+									color: 'white',
 								}}
-								size='small'
+								size='medium'
 								variant='contained'
 							>
-								Add Board
+								Add board
 							</Button>
 						</DialogActions>
 					</FormControl>

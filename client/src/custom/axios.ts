@@ -44,7 +44,6 @@ AxiosInstance.interceptors.response.use(
 		}
 
 		const originalRequests = error.config
-		console.log('originRequest', originalRequests)
 
 		if (error?.response?.status === 410 && !originalRequests._retry) {
 			originalRequests._retry = true
@@ -68,9 +67,15 @@ AxiosInstance.interceptors.response.use(
 			})
 		}
 
-		let errorMessage = error?.response?.data?.message || error.message
+		let errorMessage =
+			JSON.parse(error?.response?.data?.message) || JSON.parse(error.message)
 		if (error?.response?.status !== 410) {
-			toast.error(JSON.parse(errorMessage))
+			if (typeof errorMessage === 'string') {
+				toast.error(JSON.parse(errorMessage))
+			} else {
+				const message = Object.values(errorMessage[0]) as [[string]]
+				toast.error(message[0][0] as string)
+			}
 		}
 		return Promise.reject(error)
 	},

@@ -1,5 +1,4 @@
 import { NotificationsNone } from '@mui/icons-material'
-import Add from '@mui/icons-material/Add'
 import AppsIcon from '@mui/icons-material/Apps'
 import Close from '@mui/icons-material/Close'
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined'
@@ -17,7 +16,6 @@ import {
 } from '@mui/material'
 import Badge from '@mui/material/Badge'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import { useNavigate } from 'react-router-dom'
 import { PATH_APP } from '~/utils/constants'
 import SelectItem from '../cores/select'
@@ -103,19 +101,6 @@ function Appbar() {
 					<Recent />
 					<Started />
 					<Template />
-					<Button
-						startIcon={<Add />}
-						variant='outlined'
-						sx={{
-							paddingX: 2,
-							paddingY: 0.5,
-							textTransform: 'Uppercase',
-							color: 'primary.mainChannel',
-							borderColor: 'primary.mainChannel',
-						}}
-					>
-						Create
-					</Button>
 				</Box>
 			</Box>
 			<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -134,7 +119,7 @@ function Appbar() {
 					}}
 					id='outlined-multiline-flexible'
 					size='small'
-					placeholder='Search Trello'
+					placeholder='Search...	'
 					InputProps={{
 						startAdornment: (
 							<InputAdornment position='start'>

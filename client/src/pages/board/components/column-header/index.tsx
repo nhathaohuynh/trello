@@ -1,15 +1,11 @@
 import AddCard from '@mui/icons-material/AddCard'
-
-import Cloud from '@mui/icons-material/Cloud'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import ContentCut from '@mui/icons-material/ContentCut'
 import ContentPaste from '@mui/icons-material/ContentPaste'
-import DeleteForever from '@mui/icons-material/DeleteForever'
+import Delete from '@mui/icons-material/Delete'
 import ExpandMore from '@mui/icons-material/ExpandMore'
-
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-
 import Divider from '@mui/material/Divider'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
@@ -19,15 +15,38 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useConfirm } from 'material-ui-confirm'
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
+import { selectActiveBoard } from '~/redux/board/board.slice'
+import CardModal from '../card-modal'
 
 interface props {
 	title: string
+	columnId: string
 }
 
-const HeaderColumn = ({ title }: props) => {
+const HeaderColumn = ({ title, columnId }: props) => {
 	const confirm = useConfirm()
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+	const activeBoard = useSelector(selectActiveBoard)
 	const open = Boolean(anchorEl)
+
+	const [isModalOpen, setModalOpen] = useState(false)
+
+	const handleOpenModal = () => {
+		setModalOpen(true)
+	}
+
+	const handleCloseModal = () => {
+		setModalOpen(false)
+	}
+
+	const handleCreateNewCard = (data: { title: string; coverImage?: File }) => {
+		console.log(data)
+
+		handleCloseModal()
+	}
+
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorEl(event.currentTarget)
 	}
@@ -36,9 +55,26 @@ const HeaderColumn = ({ title }: props) => {
 	}
 
 	const handleDeleteColumn = () => {
+		const coloumn = activeBoard.columns.find(
+			(column) => column._id === columnId,
+		)
+
+		if (!coloumn) {
+			toast.error('Cannot delete column not exist')
+			return setAnchorEl(null)
+		}
+
+		if (coloumn?.cards && coloumn?.cards.length > 0) {
+			toast.error(
+				'Cannot delete column with cards. Please remove all cards before delete column',
+			)
+			return setAnchorEl(null)
+		}
+
 		confirm({
 			title: 'Delete Column?',
 			description: 'Are you sure you want to delete this column',
+			confirmationText: 'Delete',
 		}).then(() => {
 			setAnchorEl(null)
 		})
@@ -94,8 +130,14 @@ const HeaderColumn = ({ title }: props) => {
 					MenuListProps={{
 						'aria-labelledby': 'basic-column-dropdown',
 					}}
+					sx={{
+						'& span': {
+							color: 'text.secondary',
+							fontSize: '0.875rem',
+						},
+					}}
 				>
-					<MenuItem>
+					<MenuItem onClick={handleOpenModal}>
 						<ListItemIcon>
 							<AddCard fontSize='small' />
 						</ListItemIcon>
@@ -132,20 +174,22 @@ const HeaderColumn = ({ title }: props) => {
 						</Typography>
 					</MenuItem>
 					<Divider />
-					<MenuItem>
-						<ListItemIcon>
-							<Cloud fontSize='small' />
-						</ListItemIcon>
-						<ListItemText>Archive this column</ListItemText>
-					</MenuItem>
 					<MenuItem onClick={handleDeleteColumn}>
 						<ListItemIcon>
-							<DeleteForever fontSize='small' />
+							<Delete fontSize='small' />
 						</ListItemIcon>
 						<ListItemText>Remove this column</ListItemText>
 					</MenuItem>
 				</Menu>
 			</Box>
+
+			{isModalOpen && (
+				<CardModal
+					open={isModalOpen}
+					onClose={handleCloseModal}
+					onSubmitData={handleCreateNewCard}
+				/>
+			)}
 		</Box>
 	)
 }

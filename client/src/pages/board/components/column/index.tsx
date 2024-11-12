@@ -35,8 +35,8 @@ const Column = ({ column }: props) => {
 			<Box
 				{...listeners}
 				sx={{
-					minWidth: '350px',
-					maxWidth: '350px',
+					minWidth: '400px',
+					maxWidth: '4000px',
 					backgroundColor: (theme) =>
 						theme.palette.mode === 'dark' ? '#333643' : '#ebecf0',
 					ml: 3,
@@ -49,7 +49,7 @@ const Column = ({ column }: props) => {
 				}}
 			>
 				{/* header */}
-				<HeaderColumn title={column?.title} />
+				<HeaderColumn title={column?.title} columnId={column._id} />
 
 				{/* card  */}
 

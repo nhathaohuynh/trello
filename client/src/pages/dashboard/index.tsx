@@ -21,7 +21,7 @@ import NewBoardModal from './components/create-board-modal'
 import BoardList from './components/list-board'
 
 const Sidebar = () => {
-	const sidebarWidth = 350
+	const sidebarWidth = 320
 	const [activeItem, setActiveItem] = useState('Boards')
 
 	const location = useLocation()
@@ -54,8 +54,16 @@ const Sidebar = () => {
 	return (
 		<>
 			{/* Appbar at the top */}
-
-			<Appbar />
+			<Box
+				sx={{
+					width: '100%',
+					position: 'fixed',
+					top: 0, // Adjust to sit below the Appbar
+					left: 0,
+				}}
+			>
+				<Appbar />
+			</Box>
 
 			{/* Sidebar */}
 			<Box
@@ -63,10 +71,8 @@ const Sidebar = () => {
 					width: sidebarWidth,
 					height: '100vh',
 					position: 'fixed',
-					top: 64, // Adjust to sit below the Appbar
+					top: (theme) => theme.appSetting.appBarHeight, // Adjust to sit below the Appbar
 					left: 0,
-					paddingTop: 2,
-					fontSize: '0.875rem',
 				}}
 			>
 				<List
@@ -183,29 +189,26 @@ const Sidebar = () => {
 				component='main'
 				sx={{
 					flexGrow: 1,
+					marginTop: (theme) => theme.appSetting.appBarHeight,
 					marginLeft: `${sidebarWidth}px`,
 					padding: 2,
 				}}
 			>
-				<Typography
-					variant='h4'
-					sx={{
-						color: 'primary.mainChannel',
-						fontWeight: '600',
-						p: 1,
-					}}
-				>
-					Your Boards
-				</Typography>
-				<Divider sx={{ my: 1 }} />
-				<BoardList />
 				<Box
 					sx={{
 						display: 'flex',
-						justifyContent: 'center',
-						mt: 3,
+						justifyContent: 'space-between',
 					}}
 				>
+					<Typography
+						variant='h4'
+						sx={{
+							color: 'primary.mainChannel',
+							fontWeight: '600',
+						}}
+					>
+						Your Boards
+					</Typography>
 					<Pagination
 						page={page}
 						count={10}
@@ -220,6 +223,9 @@ const Sidebar = () => {
 						)}
 					/>
 				</Box>
+
+				<Divider sx={{ my: 1 }} />
+				<BoardList />
 
 				{activeItem === 'Create' && (
 					<NewBoardModal

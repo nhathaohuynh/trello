@@ -2,19 +2,8 @@ import {
 	SortableContext,
 	horizontalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import NoteAdd from '@mui/icons-material/NoteAdd'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
-import { useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { createColumnAPI } from '~/apis/board.api'
-import { IColumn, ICreateColumn } from '~/interfaces/board.interface'
-import { selectActiveBoard, setActiveBoard } from '~/redux/board/board.slice'
-import { useAppDispatch } from '~/redux/store'
-import { generatePlaceholderCard } from '~/utils/formatter'
+import { IColumn } from '~/interfaces/board.interface'
 import Column from '../column'
 
 interface props {
@@ -22,38 +11,7 @@ interface props {
 }
 
 const Columns = ({ columns }: props) => {
-	const [columTitle, setColumTitle] = useState<string>('')
-	const [isToggleColumForm, setIsTonggleColumForm] = useState<boolean>(false)
 	const items = columns?.map((column: IColumn) => column._id)
-	const inputRef = useRef<HTMLInputElement>(null)
-	const { boardId } = useParams()
-	const activeBoard = useSelector(selectActiveBoard)
-	const dispatch = useAppDispatch()
-
-	const handleAddColumn = async (title: string) => {
-		const data: ICreateColumn = {
-			boardId: boardId as string,
-			title,
-		}
-
-		const boardClone = structuredClone(activeBoard)
-		if (boardClone) {
-			const newColumn = await createColumnAPI(data)
-			const cardPlacerholder = generatePlaceholderCard(newColumn)
-
-			newColumn.cards = [cardPlacerholder]
-			newColumn.cardOrderIds = [cardPlacerholder._id]
-
-			const newColumns = [...boardClone.columns, newColumn]
-			const newColumnOrderIds = [...boardClone.columnOrderIds, newColumn._id]
-			const newBoard = {
-				...boardClone,
-				columns: newColumns,
-				columnOrderIds: newColumnOrderIds,
-			}
-			dispatch(setActiveBoard(newBoard))
-		}
-	}
 
 	return (
 		<SortableContext items={items} strategy={horizontalListSortingStrategy}>
@@ -82,7 +40,7 @@ const Columns = ({ columns }: props) => {
 						<Column key={column._id} column={column} />
 					))}
 
-					{isToggleColumForm ? (
+					{/* {isToggleColumForm ? (
 						<Box
 							sx={{
 								minWidth: '350px',
@@ -193,7 +151,7 @@ const Columns = ({ columns }: props) => {
 								New column
 							</Button>
 						</Box>
-					)}
+					)} */}
 				</Box>
 			</Box>
 		</SortableContext>

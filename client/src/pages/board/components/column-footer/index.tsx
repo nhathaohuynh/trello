@@ -31,7 +31,6 @@ const FooterColumn = ({ columnId }: props) => {
 		}
 
 		const newCard = await createCardAPI(data)
-
 		const boardClone = structuredClone(activeBoard)
 
 		if (boardClone) {
@@ -59,6 +58,7 @@ const FooterColumn = ({ columnId }: props) => {
 			dispatch(setActiveBoard(newBoard))
 		}
 	}
+
 	return (
 		<Box
 			sx={{
