@@ -3,17 +3,62 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import { useRef, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { createCardAPI } from '~/apis/board.api'
+import { ICreateCard } from '~/interfaces/board.interface'
+import { selectActiveBoard, setActiveBoard } from '~/redux/board/board.slice'
+import { useAppDispatch } from '~/redux/store'
 
 interface props {
 	columnId: string
-	handleAddCard: (columnId: string, title: string) => Promise<void>
 }
 
-const FooterColumn = ({ handleAddCard, columnId }: props) => {
+const FooterColumn = ({ columnId }: props) => {
 	const [cardTitle, setCardTitle] = useState<string>('')
 	const [isToggleCardForm, setIsToggleCardForm] = useState<boolean>(false)
 	const inputRef = useRef<HTMLInputElement>(null)
+	const activeBoard = useSelector(selectActiveBoard)
+	const { boardId } = useParams()
+	const dispatch = useAppDispatch()
+
+	const handleAddCard = async (columnId: string, title: string) => {
+		const data: ICreateCard = {
+			columnId,
+			title,
+			boardId: boardId as string,
+		}
+
+		const newCard = await createCardAPI(data)
+
+		const boardClone = structuredClone(activeBoard)
+
+		if (boardClone) {
+			const newColumns = boardClone.columns.map((column) => {
+				if (column._id === columnId) {
+					column.cards = [...column.cards, newCard]
+					column.cardOrderIds = [...column.cardOrderIds, newCard._id]
+
+					// remove placeholder card
+					column.cards = column.cards.filter((card) => !card?.FE_PLACEHOLDER)
+
+					column.cardOrderIds = column.cards
+						.filter((card) => !card?.FE_PLACEHOLDER)
+						.map((card) => card._id)
+				}
+
+				return column
+			})
+
+			const newBoard = {
+				...boardClone,
+				columns: newColumns,
+			}
+
+			dispatch(setActiveBoard(newBoard))
+		}
+	}
 	return (
 		<Box
 			sx={{

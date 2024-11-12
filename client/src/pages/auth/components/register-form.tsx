@@ -1,8 +1,8 @@
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { Box, Button, Stack, TextField, Typography } from '@mui/material'
-import { useRef, useState } from 'react'
+import { Box, Button, TextField, Typography } from '@mui/material'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { RegisterAPI } from '~/apis/user.api'
 import { PATH_APP } from '~/utils/constants'
 
 interface IFormInput {
@@ -16,16 +16,32 @@ const FormRegister = () => {
 	const {
 		register,
 		handleSubmit,
+		reset,
+		watch,
 		formState: { errors },
 	} = useForm<IFormInput>()
-	const [emailVerificationSent, setEmailVerificationSent] = useState(false)
-	const password = useRef<string | null>(null)
 	const navigate = useNavigate()
 
-	// Simulate sending email verification
 	const handleRegister: SubmitHandler<IFormInput> = (data) => {
-		console.log(data)
-		setEmailVerificationSent(true) // Assume email verification sent for this example
+		toast
+			.promise(
+				RegisterAPI({
+					email: data.email,
+					username: data.username,
+					password: data.password,
+				}),
+				{
+					pending: 'Registration in progress...',
+					success: 'Register successfully',
+					error: 'Register failed',
+				},
+			)
+			.then((user) => {
+				if (user) {
+					reset()
+					return navigate(`${PATH_APP.LOGIN}?registeredEmail=${data.email}`)
+				}
+			})
 	}
 
 	return (
@@ -34,30 +50,6 @@ const FormRegister = () => {
 			sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
 			onSubmit={handleSubmit(handleRegister)}
 		>
-			{emailVerificationSent && (
-				<Stack
-					direction='row'
-					alignItems='center'
-					spacing={3}
-					my={3}
-					sx={{
-						bgcolor: 'success.light',
-						borderRadius: '4px',
-						p: 1,
-					}}
-				>
-					<CheckCircleIcon />
-					<Typography
-						variant='body2'
-						sx={{
-							textAlign: 'left',
-						}}
-					>
-						A verification email has been sent to huynhnhathao0609@gmail.com.
-						Please check and verify your email.
-					</Typography>
-				</Stack>
-			)}
 			<TextField
 				label='Username'
 				variant='outlined'
@@ -65,12 +57,8 @@ const FormRegister = () => {
 				{...register('username', {
 					required: 'Username is required',
 					minLength: {
-						value: 6,
+						value: 3,
 						message: 'Username must be at least 6 characters',
-					},
-					maxLength: {
-						value: 20,
-						message: 'Username must be at most 20 characters',
 					},
 				})}
 				error={!!errors.username}
@@ -107,7 +95,6 @@ const FormRegister = () => {
 						value: 20,
 						message: 'Password must be at most 20 characters',
 					},
-					onChange: (e) => (password.current = e.target.value), // Store password in ref
 				})}
 				error={!!errors.password}
 				helperText={errors.password?.message}
@@ -122,7 +109,7 @@ const FormRegister = () => {
 				{...register('confirmPassword', {
 					required: 'Confirm Password is required',
 					validate: (value) =>
-						value === password.current || 'The passwords do not match',
+						value === watch('password') || 'The passwords do not match',
 				})}
 				error={!!errors.confirmPassword}
 				helperText={errors.confirmPassword?.message}
@@ -136,11 +123,9 @@ const FormRegister = () => {
 					justifyContent: 'center',
 					alignItems: 'center',
 					mt: 1,
-					borderColor: 'grey.400',
-					color: 'text.primary',
-					'&:hover': {
-						borderColor: 'grey.600',
-					},
+					borderColor: 'primary.mainChannel',
+					bgcolor: 'primary.mainChannel',
+					color: 'white',
 				}}
 				type='submit'
 				fullWidth

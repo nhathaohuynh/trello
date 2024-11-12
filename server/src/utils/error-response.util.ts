@@ -50,3 +50,15 @@ export class UnprocessableError extends ErrorResponseBase {
     super(JSON.stringify(message), status)
   }
 }
+
+export class NotAcceptable extends ErrorResponseBase {
+  constructor(message: any = ReasonPhrases.NOT_ACCEPTABLE, status = StatusCodes.NOT_ACCEPTABLE) {
+    super(JSON.stringify(message), status)
+  }
+}
+
+export class GoneError extends ErrorResponseBase {
+  constructor(message: any = ReasonPhrases.GONE, status = StatusCodes.GONE) {
+    super(JSON.stringify(message), status)
+  }
+}

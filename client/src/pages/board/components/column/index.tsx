@@ -9,10 +9,9 @@ import HeaderColumn from '../column-header'
 
 interface props {
 	column: IColumn
-	handleAddCard: (columnId: string, title: string) => Promise<void>
 }
 
-const Column = ({ column, handleAddCard }: props) => {
+const Column = ({ column }: props) => {
 	// drag and drop
 	const {
 		attributes,
@@ -57,7 +56,7 @@ const Column = ({ column, handleAddCard }: props) => {
 				<Cards cards={column.cards} />
 
 				{/* footer */}
-				<FooterColumn handleAddCard={handleAddCard} columnId={column._id} />
+				<FooterColumn columnId={column._id} />
 			</Box>
 		</div>
 	)

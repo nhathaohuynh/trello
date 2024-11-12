@@ -11,7 +11,8 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Tooltip from '@mui/material/Tooltip'
-import { IBoard } from '~/interfaces/board.interface'
+import { useSelector } from 'react-redux'
+import { selectActiveBoard } from '~/redux/board/board.slice'
 
 const MENU_STYLE = {
 	padding: 1,
@@ -27,11 +28,8 @@ const MENU_STYLE = {
 	},
 }
 
-interface BoardBarProps {
-	board: IBoard
-}
-
-const BoardBar = ({ board }: BoardBarProps) => {
+const BoardBar = () => {
+	const board = useSelector(selectActiveBoard)
 	return (
 		<Box
 			sx={{

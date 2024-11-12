@@ -57,6 +57,6 @@ export class CardRepository implements IRepository<ICard> {
       .getDatabase()
       .collection(CARD_COLLECTION_NAME)
       .findOneAndDelete({ _id: new ObjectId(id) })
-    return res?._id.toString() || null
+    return res?._id || null
   }
 }

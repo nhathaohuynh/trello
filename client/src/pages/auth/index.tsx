@@ -1,13 +1,21 @@
 import { Lock } from '@mui/icons-material'
 import { Box, Paper, Typography, Zoom } from '@mui/material'
-import { useLocation } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { Navigate, useLocation } from 'react-router-dom'
+import { selectCurrentUser } from '~/redux/user/user.slice'
+import { PATH_APP } from '~/utils/constants'
 import FormLogin from './components/login-form'
 import FormRegister from './components/register-form'
 
 const AuthPage = () => {
 	const location = useLocation()
-	const isLogin = location.pathname === '/login'
-	const isRegister = location.pathname === '/register'
+	const isLogin = location.pathname === PATH_APP.LOGIN
+	const isRegister = location.pathname === PATH_APP.REGISTER
+	const user = useSelector(selectCurrentUser)
+
+	if (user) {
+		return <Navigate to='/' replace={true} />
+	}
 
 	return (
 		<Box

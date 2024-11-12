@@ -10,11 +10,11 @@ export interface IRepository<T> {
 
   findOne: (query: Partial<T>) => Promise<T | null>
 
-  findById: (id: ObjectId | string) => Promise<T | null> // Updated to return T or null
+  findById: (id: ObjectId | string) => Promise<T | null>
 
   create: (data: T) => Promise<ObjectId | null>
 
   findByIdAndUpdate: (id: ObjectId | string, data: any, options?: any) => Promise<T | null>
 
-  findByIdAndDelete: (id: ObjectId | string) => Promise<string | null>
+  findByIdAndDelete: (id: ObjectId | string) => Promise<ObjectId | null>
 }

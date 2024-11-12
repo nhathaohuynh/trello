@@ -17,6 +17,7 @@ import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import { useConfirm } from 'material-ui-confirm'
 import { useState } from 'react'
 
 interface props {
@@ -24,6 +25,7 @@ interface props {
 }
 
 const HeaderColumn = ({ title }: props) => {
+	const confirm = useConfirm()
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 	const open = Boolean(anchorEl)
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -31,6 +33,15 @@ const HeaderColumn = ({ title }: props) => {
 	}
 	const handleClose = () => {
 		setAnchorEl(null)
+	}
+
+	const handleDeleteColumn = () => {
+		confirm({
+			title: 'Delete Column?',
+			description: 'Are you sure you want to delete this column',
+		}).then(() => {
+			setAnchorEl(null)
+		})
 	}
 	return (
 		<Box
@@ -127,7 +138,7 @@ const HeaderColumn = ({ title }: props) => {
 						</ListItemIcon>
 						<ListItemText>Archive this column</ListItemText>
 					</MenuItem>
-					<MenuItem>
+					<MenuItem onClick={handleDeleteColumn}>
 						<ListItemIcon>
 							<DeleteForever fontSize='small' />
 						</ListItemIcon>

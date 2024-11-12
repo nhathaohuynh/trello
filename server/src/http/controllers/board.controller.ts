@@ -19,7 +19,6 @@ export class BoardController {
   async getDetailBoard(req: Request, res: Response) {
     const boardId = req.params.id
     const data = await this.boardService.getDetailBoard(boardId)
-
     return new OKResponse(data).send(res)
   }
 

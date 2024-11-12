@@ -19,8 +19,10 @@ import {
 import { arrayMove } from '@dnd-kit/sortable'
 import Box from '@mui/material/Box'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { MouseSensor, TouchSensor } from '~/custom/dnd-kit'
-import { IBoard, ICard, IColumn } from '~/interfaces/board.interface'
+import { ICard, IColumn } from '~/interfaces/board.interface'
+import { selectActiveBoard } from '~/redux/board/board.slice'
 import { generatePlaceholderCard, mapOrder } from '~/utils/formatter'
 import CardItem from '../card-item'
 import Column from '../column'
@@ -32,9 +34,6 @@ const CONSTANTS = {
 }
 
 interface props {
-	board: IBoard
-	handleAddCard: (columnId: string, title: string) => Promise<void>
-	handleAddColumn: (title: string) => Promise<void>
 	handleCardOrderIds: (columnId: string, cardOrderIds: string[]) => void
 	handleOrderColumnIds: (columnOrderIds: string[]) => void
 	handleMoveCardBetweenColumns: (
@@ -52,9 +51,6 @@ const ACTIVE_DRAG_ITEM_TYPE = {
 }
 
 const BoardContent = ({
-	board,
-	handleAddCard,
-	handleAddColumn,
 	handleCardOrderIds,
 	handleOrderColumnIds,
 	handleMoveCardBetweenColumns,
@@ -70,6 +66,8 @@ const BoardContent = ({
 			tolerance: 500,
 		},
 	})
+
+	console.log('rerender')
 
 	const sensors = useSensors(mouseSensor, touchSensor)
 	const [orderedColumns, setOrderedColumns] = useState<IColumn[]>([])
@@ -93,6 +91,7 @@ const BoardContent = ({
 		}),
 	}
 	const lastOverId = useRef<string | null>(null)
+	const board = useSelector(selectActiveBoard)
 
 	useEffect(() => {
 		setOrderedColumns(board.columns)
@@ -381,19 +380,12 @@ const BoardContent = ({
 					{!activeDragItemData ||
 					!activeDragItemType ? null : activeDragItemType ===
 					  ACTIVE_DRAG_ITEM_TYPE.COLUMN ? (
-						<Column
-							column={activeDragItemData as IColumn}
-							handleAddCard={handleAddCard}
-						/>
+						<Column column={activeDragItemData as IColumn} />
 					) : (
 						<CardItem card={activeDragItemData as ICard} />
 					)}
 				</DragOverlay>
-				<Columns
-					columns={orderedColumns}
-					handleAddColumn={handleAddColumn}
-					handleAddCard={handleAddCard}
-				/>
+				<Columns columns={orderedColumns} />
 			</Box>
 		</DndContext>
 	)

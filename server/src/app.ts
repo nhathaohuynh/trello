@@ -1,12 +1,18 @@
+import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express, { Express } from 'express'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import { corsOptions } from './config/cros.config'
+import env from './config/env.config'
 import { errorHandler } from './http/middlewares/error-handler'
 import { notFound } from './http/middlewares/not-found'
+import { preventCaching } from './http/middlewares/prevent-caching'
 import router from './http/routes'
+import { ROUTE_APP } from './http/routes/route-config-app'
 import { API_PREFIX } from './utils/constant.util'
+import { routeApp } from './utils/route-app'
+
 export const expressApp = (app: Express) => {
   // middleware
   app.use(helmet())
@@ -14,10 +20,11 @@ export const expressApp = (app: Express) => {
   app.use(express.urlencoded({ extended: true }))
   app.use(morgan('dev'))
   app.use(cors(corsOptions))
-
+  app.use(cookieParser(env.COOKIE_SECRET))
+  app.use(preventCaching)
   app.use(API_PREFIX, router)
   app.use(notFound)
   app.use(errorHandler)
 
-  // routeApp(ROUTE_APP, API_PREFIX)
+  routeApp(ROUTE_APP, API_PREFIX)
 }

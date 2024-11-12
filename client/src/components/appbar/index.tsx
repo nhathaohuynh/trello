@@ -18,6 +18,8 @@ import {
 import Badge from '@mui/material/Badge'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import { useNavigate } from 'react-router-dom'
+import { PATH_APP } from '~/utils/constants'
 import SelectItem from '../cores/select'
 import Profile from './menu/profile'
 import Recent from './menu/recent'
@@ -35,6 +37,8 @@ function Appbar() {
 	const handleOnChnage = (value: string) => {
 		setMode(value as 'light' | 'dark' | 'system')
 	}
+	const navigate = useNavigate()
+
 	return (
 		<Box
 			sx={{
@@ -58,7 +62,17 @@ function Appbar() {
 						color: 'primary.main',
 					}}
 				/>
-				<Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+				<Box
+					sx={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: 0.5,
+						'&:hover': {
+							cursor: 'pointer',
+						},
+					}}
+					onClick={() => navigate(PATH_APP.DASHBOARD)}
+				>
 					<SplitscreenIcon
 						fontSize='small'
 						sx={{
@@ -120,7 +134,7 @@ function Appbar() {
 					}}
 					id='outlined-multiline-flexible'
 					size='small'
-					placeholder='Search'
+					placeholder='Search Trello'
 					InputProps={{
 						startAdornment: (
 							<InputAdornment position='start'>

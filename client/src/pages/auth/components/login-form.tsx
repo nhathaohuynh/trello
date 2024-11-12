@@ -1,6 +1,17 @@
-import { Box, Button, Stack, TextField, Typography } from '@mui/material'
+import {
+	Alert,
+	Box,
+	Button,
+	CircularProgress,
+	Stack,
+	TextField,
+	Typography,
+} from '@mui/material'
+import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useAppDispatch } from '~/redux/store'
+import { userLogin } from '~/redux/user/user.slice'
 import { PATH_APP } from '~/utils/constants'
 
 interface IFormInput {
@@ -8,16 +19,36 @@ interface IFormInput {
 	password: string
 }
 const FormLogin = () => {
+	const dispatch = useAppDispatch()
+	const [searchParams] = useSearchParams()
+	const { registeredEmail, verifiedEmail } = Object.fromEntries([
+		...searchParams,
+	])
+
+	const [loading, setLoading] = useState(false)
+
 	const {
 		register,
 		handleSubmit,
+		reset,
 		formState: { errors },
-	} = useForm<IFormInput>()
+	} = useForm<IFormInput>({
+		defaultValues: {
+			email: verifiedEmail || '',
+			password: '',
+		},
+	})
 	const navigate = useNavigate()
 
 	const handleLogin: SubmitHandler<IFormInput> = (data) => {
-		console.log(data)
-		// Your login logic here
+		setLoading(true)
+		Promise.resolve(dispatch(userLogin(data))).then((res) => {
+			setLoading(false)
+			if (res.payload) {
+				reset()
+				navigate(PATH_APP.BASE_NAME)
+			}
+		})
 	}
 
 	return (
@@ -26,11 +57,40 @@ const FormLogin = () => {
 			onSubmit={handleSubmit(handleLogin)}
 			sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
 		>
+			{verifiedEmail && (
+				<Alert severity='success' sx={{ textAlign: 'left' }}>
+					<Typography
+						variant='body2'
+						sx={{
+							textAlign: 'left',
+							color: 'success.dark',
+						}}
+					>
+						Your email has been verified. Please login to continue.
+					</Typography>
+				</Alert>
+			)}
+
+			{registeredEmail && (
+				<Alert severity='info' sx={{ textAlign: 'left' }}>
+					<Typography
+						variant='body2'
+						sx={{
+							textAlign: 'left',
+							color: 'success.dark',
+						}}
+					>
+						{`A verification email has been sent to ${registeredEmail}. Please check and verify your
+						account`}
+					</Typography>
+				</Alert>
+			)}
+
 			<TextField
 				label='Email'
 				variant='outlined'
 				fullWidth
-				autoComplete='off'
+				autoComplete='on'
 				error={errors.email ? true : false}
 				helperText={errors.email?.message}
 				{...register('email', {
@@ -44,7 +104,7 @@ const FormLogin = () => {
 			<TextField
 				label='Password'
 				type='password'
-				autoComplete='off'
+				autoComplete='on'
 				variant='outlined'
 				fullWidth
 				error={errors.password ? true : false}
@@ -62,22 +122,30 @@ const FormLogin = () => {
 				})}
 			/>
 			<Button
-				variant='outlined'
+				className='interceptor-loading'
 				sx={{
 					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
 					mt: 1,
-					borderColor: 'grey.400',
-					color: 'text.primary',
-					'&:hover': {
-						borderColor: 'grey.600',
-					},
+					borderColor: 'primary.mainChannel',
+					bgcolor: 'primary.mainChannel',
+					color: 'white',
+					height: '36px',
 				}}
 				type='submit'
 				fullWidth
 			>
-				Login
+				{loading ? (
+					<CircularProgress
+						size={20}
+						sx={{
+							color: 'white',
+						}}
+					/>
+				) : (
+					'Login'
+				)}
 			</Button>
 
 			{/* Additional Links for Register and Forgot Password */}

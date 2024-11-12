@@ -1,6 +1,6 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { getBoardDetailAPI } from '~/apis'
+import { getBoardDetailAPI } from '~/apis/board.api'
 import { IBoard } from '~/interfaces/board.interface'
 import { generatePlaceholderCard, mapOrder } from '~/utils/formatter'
 import { RootState } from '../store'

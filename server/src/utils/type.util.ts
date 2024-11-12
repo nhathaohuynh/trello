@@ -10,3 +10,9 @@ export enum BoardType {
   PUBLIC = 'public',
   PRIVATE = 'private'
 }
+
+export type EmailOptions = {
+  email: string
+  subject: string
+  html: string
+}

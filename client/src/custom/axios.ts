@@ -1,14 +1,22 @@
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { RefreshTokenAPI } from '~/apis/user.api'
+import { AppStore } from '~/redux/store'
+import { userLogout } from '~/redux/user/user.slice'
 import { ROOT_API } from '~/utils/constants'
 import { interceptorLoadingElement } from '~/utils/formatter'
 
-const AxiosInstance = axios.create({})
+let storeInject: AppStore // Declare the store variable as `let` to allow reassignment
 
+export const injectStore = (_store: AppStore) => {
+	storeInject = _store
+}
+
+const AxiosInstance = axios.create({})
 AxiosInstance.defaults.timeout = 1000 * 60 * 10
 AxiosInstance.defaults.baseURL = ROOT_API
-// AxiosInstance.defaults.withCredentials = true
-
+AxiosInstance.defaults.withCredentials = true
+AxiosInstance.defaults.headers.post['Content-Type'] = 'application/json'
 AxiosInstance.interceptors.request.use(
 	(config) => {
 		interceptorLoadingElement(true)
@@ -21,6 +29,8 @@ AxiosInstance.interceptors.request.use(
 
 // Add a response interceptor
 
+let refreshPromise: Promise<string | void> | null = null
+
 AxiosInstance.interceptors.response.use(
 	(response) => {
 		interceptorLoadingElement(false)
@@ -28,9 +38,39 @@ AxiosInstance.interceptors.response.use(
 	},
 	(error) => {
 		interceptorLoadingElement(false)
+
+		if (error?.response?.status === 401) {
+			storeInject.dispatch(userLogout({ showSuccessMessage: false }))
+		}
+
+		const originalRequests = error.config
+		console.log('originRequest', originalRequests)
+
+		if (error?.response?.status === 410 && !originalRequests._retry) {
+			originalRequests._retry = true
+
+			if (!refreshPromise) {
+				refreshPromise = RefreshTokenAPI()
+					.then((res) => {
+						return res.id
+					})
+					.catch((err) => {
+						storeInject.dispatch(userLogout({ showSuccessMessage: false }))
+						return Promise.reject(err)
+					})
+					.finally(() => {
+						refreshPromise = null
+					})
+			}
+
+			return refreshPromise.then((_) => {
+				return AxiosInstance(originalRequests)
+			})
+		}
+
 		let errorMessage = error?.response?.data?.message || error.message
 		if (error?.response?.status !== 410) {
-			toast.error(errorMessage)
+			toast.error(JSON.parse(errorMessage))
 		}
 		return Promise.reject(error)
 	},

@@ -3,16 +3,20 @@ import 'reflect-metadata'
 import { IBoard } from '~/databases/models/board.model'
 import { ICard } from '~/databases/models/card.model'
 import { IColumn } from '~/databases/models/column.model'
+import { IUser } from '~/databases/models/user.model'
 import { BoardController } from '~/http/controllers/board.controller'
 import { CardController } from '~/http/controllers/card.controller'
 import { ColumnController } from '~/http/controllers/column.controller'
+import { UserController } from '~/http/controllers/user.controller'
 import { IRepository } from '~/interface/base/IRepository.base'
 import { BoardRepository } from '~/repositories/board.repository'
 import { CardRepository } from '~/repositories/card.repository'
 import { ColumnRepository } from '~/repositories/column.repository'
+import { UserRepository } from '~/repositories/user.repository'
 import { BoardService } from '~/services/board.service'
 import { CardService } from '~/services/card.service'
 import { ColumnService } from '~/services/column.service'
+import { UserService } from '~/services/user.service'
 import { NAME_SERVICE_INJECTION } from '~/utils/constant.util'
 
 const container = new Container()
@@ -28,5 +32,9 @@ container.bind(ColumnController).to(ColumnController)
 container.bind<IRepository<ICard>>(NAME_SERVICE_INJECTION.CARD_REPOSITORY).to(CardRepository)
 container.bind(CardService).to(CardService)
 container.bind(CardController).to(CardController)
+
+container.bind<IRepository<IUser>>(NAME_SERVICE_INJECTION.USER_REPOSITORY).to(UserRepository)
+container.bind(UserService).to(UserService)
+container.bind(UserController).to(UserController)
 
 export { container }

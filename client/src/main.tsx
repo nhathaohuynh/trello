@@ -1,23 +1,40 @@
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
+import { ConfirmProvider } from 'material-ui-confirm'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
+import { BrowserRouter } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { PersistGate } from 'redux-persist/integration/react'
+import { injectStore } from '~/custom/axios.ts'
 import App from './App.tsx'
-import { store } from './redux/store.ts'
+import { persistor, store } from './redux/store.ts'
 import theme from './theme.ts'
-
-import { BrowserRouter } from 'react-router-dom'
 import { PATH_APP } from './utils/constants.ts'
+
+// Inject store to axios
+injectStore(store)
+
 createRoot(document.getElementById('root')!).render(
 	<BrowserRouter basename={PATH_APP.BASE_NAME}>
 		<Provider store={store}>
-			<ThemeProvider theme={theme}>
-				<CssBaseline />
-				<App />
-				<ToastContainer position='top-left' theme='colored' />
-			</ThemeProvider>
+			<PersistGate loading={null} persistor={persistor}>
+				<ThemeProvider theme={theme}>
+					<ConfirmProvider
+						defaultOptions={{
+							cancellationText: 'Cancel',
+							confirmationText: 'Confirm',
+							allowClose: false,
+							dialogProps: { maxWidth: 'sm' },
+						}}
+					>
+						<CssBaseline />
+						<App />
+						<ToastContainer position='top-left' theme='colored' />
+					</ConfirmProvider>
+				</ThemeProvider>
+			</PersistGate>
 		</Provider>
 	</BrowserRouter>,
 )
