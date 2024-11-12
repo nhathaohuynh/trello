@@ -1,6 +1,6 @@
 # Trello
 
----
+## ![](demo.png)
 
 ## Table of Contents
 
@@ -24,7 +24,7 @@ This is Project clone trello application using MERN stack with Typescript
 - Security: Rate litmiting using Redis, CORS, cookie save AT and RT, Verify two step using third application like SafeAuth, verification user by email
 - Pagination
 - Notification, Chating with Socket.io
-- Invation menebers
+- Invatation menebers
 - Comment
 - Autocomplete search
 
