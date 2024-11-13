@@ -27,6 +27,9 @@ export default function Started() {
 				aria-haspopup='true'
 				aria-expanded={open ? 'true' : undefined}
 				onClick={handleClick}
+				sx={{
+					color: 'white',
+				}}
 				endIcon={<ExpandMore />}
 			>
 				Started

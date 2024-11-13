@@ -12,7 +12,6 @@ interface props {
 }
 
 const Column = ({ column }: props) => {
-	// drag and drop
 	const {
 		attributes,
 		listeners,
@@ -36,27 +35,26 @@ const Column = ({ column }: props) => {
 				{...listeners}
 				sx={{
 					minWidth: '400px',
-					maxWidth: '4000px',
+					maxWidth: '400px',
 					backgroundColor: (theme) =>
 						theme.palette.mode === 'dark' ? '#333643' : '#ebecf0',
 					ml: 3,
-					height: 'fit-content !important',
+					height: '100%',
 					borderRadius: '6px',
+					display: 'flex',
+					flexDirection: 'column',
+					overflow: 'hidden',
 					maxHeight: (theme) =>
 						`calc(${theme.appSetting.boardBarContentHeight} - ${theme.spacing(
 							5,
 						)})`,
 				}}
 			>
-				{/* header */}
-				<HeaderColumn title={column?.title} columnId={column._id} />
-
-				{/* card  */}
-
-				<Cards cards={column.cards} />
-
-				{/* footer */}
-				<FooterColumn columnId={column._id} />
+				<HeaderColumn title={column?.title} columnId={column?._id} />
+				<Box sx={{ flexGrow: 1, overflowY: 'auto', overflow: 'hidden' }}>
+					<Cards cards={column?.cards} />
+				</Box>
+				<FooterColumn columnId={column?._id} />
 			</Box>
 		</div>
 	)

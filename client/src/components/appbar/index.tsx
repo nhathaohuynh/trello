@@ -44,6 +44,7 @@ function Appbar() {
 				paddingX: 3,
 				height: (theme) => theme.appSetting.appBarHeight,
 				display: 'flex',
+				bgcolor: 'primary.mainChannel',
 				justifyContent: 'space-between',
 				alignItems: 'center',
 				gap: 2,
@@ -57,7 +58,7 @@ function Appbar() {
 			<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
 				<AppsIcon
 					sx={{
-						color: 'primary.main',
+						color: 'white',
 					}}
 				/>
 				<Box
@@ -74,7 +75,7 @@ function Appbar() {
 					<SplitscreenIcon
 						fontSize='small'
 						sx={{
-							color: 'primary.main',
+							color: 'white',
 						}}
 					/>
 
@@ -83,7 +84,7 @@ function Appbar() {
 						sx={{
 							fontSize: '1.2rem',
 							fontWeight: 'bold',
-							color: 'primary.main',
+							color: 'white',
 							textTransform: 'uppercase',
 						}}
 					>
@@ -106,15 +107,19 @@ function Appbar() {
 			<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
 				<TextField
 					sx={{
-						minWidth: '120px',
-						'& .MuiOutlinedInput-root': {
-							'&:hover fieldset': {
-								borderColor: 'primary.mainChannel',
-							},
-
-							'&.Mui-focused fieldset': {
-								borderColor: 'primary.mainChannel',
-							},
+						minWidth: '100px',
+						bgcolor: 'white',
+						color: 'primary.main',
+						borderRadius: '4px',
+						border: 'none',
+						'&:hover': {
+							border: 'none',
+						},
+						'& fieldset': {
+							border: 'none !important',
+						},
+						'& input': {
+							color: 'black',
 						},
 					}}
 					id='outlined-multiline-flexible'
@@ -123,18 +128,17 @@ function Appbar() {
 					InputProps={{
 						startAdornment: (
 							<InputAdornment position='start'>
-								<Search sx={{ color: 'primary' }} />
+								<Search sx={{ color: 'black' }} />
 							</InputAdornment>
 						),
 						endAdornment: (
 							<InputAdornment position='end'>
-								<Close sx={{ color: 'primary' }} />
+								<Close sx={{ color: 'black' }} />
 							</InputAdornment>
 						),
 					}}
 				/>
 				<SelectItem
-					label='Mode'
 					value={mode ?? 'light'}
 					items={items}
 					onChange={handleOnChnage}
@@ -142,14 +146,13 @@ function Appbar() {
 
 				<Tooltip title='Notifications'>
 					<Badge color='secondary' variant='dot' sx={{ cursor: 'pointer' }}>
-						<NotificationsNone />
+						<NotificationsNone sx={{ color: 'white' }} />
 					</Badge>
 				</Tooltip>
 
 				<Tooltip title='Help'>
-					<HelpOutline sx={{ cursor: 'pointer' }} />
+					<HelpOutline sx={{ cursor: 'pointer', color: 'white' }} />
 				</Tooltip>
-
 				<Profile />
 			</Box>
 		</Box>

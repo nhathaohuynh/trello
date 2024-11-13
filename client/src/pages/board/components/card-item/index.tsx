@@ -11,7 +11,12 @@ import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import { useConfirm } from 'material-ui-confirm'
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
+import { deleteCardAPI, updateCardAPI } from '~/apis/board.api'
 import { ICard } from '~/interfaces/board.interface'
+import { selectActiveBoard, setActiveBoard } from '~/redux/board/board.slice'
+import { useAppDispatch } from '~/redux/store'
 import CardModal from '../card-modal'
 
 interface props {
@@ -33,7 +38,8 @@ function CardItem({ card }: props) {
 		transition,
 		opacity: isDragging ? 0.5 : 1,
 	}
-
+	const board = useSelector(selectActiveBoard)
+	const dispatch = useAppDispatch()
 	const [isModalOpen, setModalOpen] = useState(false)
 	const confirm = useConfirm()
 
@@ -46,7 +52,32 @@ function CardItem({ card }: props) {
 	}
 
 	const handleUpdateCard = (data: { title: string; coverImage?: File }) => {
-		console.log(data)
+		const formData = new FormData()
+
+		if (data.coverImage) {
+			formData.append('cover', data.coverImage)
+		}
+		formData.append('title', data.title)
+		toast
+			.promise(updateCardAPI(card._id, formData), {
+				pending: 'Updating card...',
+				success: 'Card updated successfully!',
+			})
+			.then((data) => {
+				const boardClone = structuredClone(board)
+				const column = boardClone.columns.find(
+					(col) => col._id === data.columnId,
+				)
+
+				if (column) {
+					const cardIndex = column.cards.findIndex(
+						(card) => card._id === data._id,
+					)
+					column.cards[cardIndex] = data
+				}
+
+				dispatch(setActiveBoard(boardClone))
+			})
 
 		handleCloseModal()
 	}
@@ -55,13 +86,21 @@ function CardItem({ card }: props) {
 		confirm({
 			title: 'Delete Card',
 			description: 'Are you sure you want to delete this card?',
+		}).then(() => {
+			const boardClone = structuredClone(board)
+			const column = boardClone.columns.find((col) => col._id === card.columnId)
+
+			if (column) {
+				column.cards = column.cards.filter((c) => c._id !== card._id)
+				column.cardOrderIds = column.cardOrderIds.filter(
+					(id) => id !== card._id,
+				)
+			}
+
+			dispatch(setActiveBoard(boardClone))
+			deleteCardAPI(card._id)
+			toast.success('Card deleted successfully!')
 		})
-			.then(() => {
-				console.log('Deleted')
-			})
-			.catch(() => {
-				console.log('Not deleted')
-			})
 	}
 
 	return (
@@ -72,23 +111,20 @@ function CardItem({ card }: props) {
 				{...listeners}
 				style={dndkitCardStyle}
 				sx={{
-					'&:hover': {
-						border: '1px solid #0000002f',
-					},
-					border: '1px solid transparent',
 					cursor: 'pointer',
 					boxShadow: card?.FE_PLACEHOLDER
 						? 'unset'
 						: '0 1px 1px 0 rgb(0 0 0 / 20%)',
 					overflow: card?.FE_PLACEHOLDER ? 'hidden' : 'unset',
 					pointerEvents: card?.FE_PLACEHOLDER ? 'none' : 'unset',
+					bgcolor: card?.FE_PLACEHOLDER ? 'transparent' : 'background.paper',
+					height: card?.FE_PLACEHOLDER ? '100px' : 'fit-content',
 				}}
 			>
 				{card?.cover && (
 					<CardMedia
-						sx={{ height: 140 }}
-						image='https://images.unsplash.com/photo-1719937050792-a6a15d899281?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-						title='green iguana'
+						sx={{ height: '140px', borderRadius: '4px' }}
+						image={card?.cover}
 					/>
 				)}
 				<CardContent
@@ -102,59 +138,61 @@ function CardItem({ card }: props) {
 				>
 					<Typography variant='body2'>{card?.title}</Typography>
 				</CardContent>
-				<CardActions sx={{ p: '0 4px 8px 4px' }}>
-					<Button
-						sx={{ color: 'primary.mainChannel' }}
-						size='small'
-						startIcon={<Group />}
-					>
-						{card?.memberIds?.length > 0 ? card?.memberIds?.length : 0}
-					</Button>
+				{!card?.FE_PLACEHOLDER && (
+					<CardActions sx={{ p: '0 4px 8px 4px' }}>
+						<Button
+							sx={{ color: 'primary.mainChannel' }}
+							size='small'
+							startIcon={<Group />}
+						>
+							{card?.memberIds?.length > 0 ? card?.memberIds?.length : 0}
+						</Button>
 
-					<Button
-						sx={{ color: 'primary.mainChannel' }}
-						size='small'
-						startIcon={<Comment />}
-					>
-						{card?.comments?.length > 0 ? card?.comments?.length : 0}
-					</Button>
+						<Button
+							sx={{ color: 'primary.mainChannel' }}
+							size='small'
+							startIcon={<Comment />}
+						>
+							{card?.comments?.length > 0 ? card?.comments?.length : 0}
+						</Button>
 
-					<Button
-						sx={{ color: 'primary.mainChannel' }}
-						size='small'
-						startIcon={<Attachment />}
-					>
-						{card?.attachments?.length > 0 ? card?.attachments?.length : 0}
-					</Button>
+						<Button
+							sx={{ color: 'primary.mainChannel' }}
+							size='small'
+							startIcon={<Attachment />}
+						>
+							{card?.attachments?.length > 0 ? card?.attachments?.length : 0}
+						</Button>
 
-					<Button
-						sx={{
-							color: '#ffffff',
-							fontWeight: 400,
-							fontSize: '10px',
-							bgcolor: 'success.main',
-							mx: '4px',
-						}}
-						size='small'
-						className='interceptor-loading'
-						onClick={handleOpenModal}
-					>
-						Update
-					</Button>
+						<Button
+							sx={{
+								color: '#ffffff',
+								fontWeight: 400,
+								fontSize: '10px',
+								bgcolor: 'success.main',
+								mx: '4px',
+							}}
+							size='small'
+							className='interceptor-loading'
+							onClick={handleOpenModal}
+						>
+							Update
+						</Button>
 
-					<Button
-						size='small'
-						sx={{
-							color: '#ffffff',
-							fontWeight: 400,
-							fontSize: '10px',
-							bgcolor: 'error.main',
-						}}
-						onClick={handleDeleteCard}
-					>
-						Remove
-					</Button>
-				</CardActions>
+						<Button
+							size='small'
+							sx={{
+								color: '#ffffff',
+								fontWeight: 400,
+								fontSize: '10px',
+								bgcolor: 'error.main',
+							}}
+							onClick={handleDeleteCard}
+						>
+							Remove
+						</Button>
+					</CardActions>
+				)}
 			</Card>
 
 			{isModalOpen && (
@@ -165,7 +203,7 @@ function CardItem({ card }: props) {
 					isUpdate={true}
 					cardData={{
 						title: card?.title,
-						coverImage: card?.cover || '',
+						coverImage: typeof card?.cover === 'string' ? card.cover : '',
 					}}
 				/>
 			)}

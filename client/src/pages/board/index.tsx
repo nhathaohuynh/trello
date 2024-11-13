@@ -9,7 +9,6 @@ import {
 	updateOrderColumnIdsBoardAPI,
 } from '~/apis/board.api'
 import Appbar from '~/components/appbar'
-import Loading from '~/components/cores/loading'
 import { IColumn } from '~/interfaces/board.interface'
 import {
 	getBoardsDetail,
@@ -89,7 +88,6 @@ function Board() {
 			})
 
 			//  Old coloumn is empty replace with placeholder card
-
 			newColumns.forEach((column) => {
 				if (column._id === oldColumnId && column.cardOrderIds.length === 0) {
 					const cardPlacerholder = generatePlaceholderCard(column)
@@ -123,19 +121,13 @@ function Board() {
 			maxWidth={false}
 			sx={{ height: '100vh', maxHeight: '100vh' }}
 		>
-			{activeBoard ? (
-				<>
-					<Appbar />
-					<BoardBar />
-					<BoardContent
-						handleCardOrderIds={handleCardOrderIds}
-						handleOrderColumnIds={handleOrderColumnIds}
-						handleMoveCardBetweenColumns={handleMoveCardBetweenColumns}
-					/>
-				</>
-			) : (
-				<Loading message='Loading data, please wait...' />
-			)}
+			<Appbar />
+			<BoardBar />
+			<BoardContent
+				handleCardOrderIds={handleCardOrderIds}
+				handleOrderColumnIds={handleOrderColumnIds}
+				handleMoveCardBetweenColumns={handleMoveCardBetweenColumns}
+			/>
 		</Container>
 	)
 }

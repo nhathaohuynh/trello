@@ -23,10 +23,18 @@ createRoot(document.getElementById('root')!).render(
 				<ThemeProvider theme={theme}>
 					<ConfirmProvider
 						defaultOptions={{
-							cancellationText: 'Cancel',
-							confirmationText: 'Confirm',
+							cancellationText: 'No',
+							confirmationText: 'Yes',
 							allowClose: false,
 							dialogProps: { maxWidth: 'sm' },
+							confirmationButtonProps: {
+								variant: 'contained',
+								color: 'error',
+							},
+							cancellationButtonProps: {
+								variant: 'contained',
+								color: 'inherit',
+							},
 						}}
 					>
 						<CssBaseline />

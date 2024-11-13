@@ -1,3 +1,4 @@
+import { Update } from '@mui/icons-material'
 import AddCard from '@mui/icons-material/AddCard'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import ContentCut from '@mui/icons-material/ContentCut'
@@ -17,7 +18,14 @@ import { useConfirm } from 'material-ui-confirm'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
-import { selectActiveBoard } from '~/redux/board/board.slice'
+import {
+	createCardAPI,
+	deleteColumnAPI,
+	updateColumnAPI,
+} from '~/apis/board.api'
+import ToggleFocusInput from '~/components/cores/focus-input'
+import { selectActiveBoard, setActiveBoard } from '~/redux/board/board.slice'
+import { useAppDispatch } from '~/redux/store'
 import CardModal from '../card-modal'
 
 interface props {
@@ -30,6 +38,7 @@ const HeaderColumn = ({ title, columnId }: props) => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 	const activeBoard = useSelector(selectActiveBoard)
 	const open = Boolean(anchorEl)
+	const dispatch = useAppDispatch()
 
 	const [isModalOpen, setModalOpen] = useState(false)
 
@@ -42,14 +51,55 @@ const HeaderColumn = ({ title, columnId }: props) => {
 	}
 
 	const handleCreateNewCard = (data: { title: string; coverImage?: File }) => {
-		console.log(data)
+		if (data.title === '') {
+			toast.error('Title is required')
+			return
+		}
 
-		handleCloseModal()
+		const formData = new FormData()
+
+		if (data.coverImage) {
+			formData.append('cover', data.coverImage)
+		}
+
+		formData.append('title', data.title)
+		formData.append('columnId', columnId)
+
+		toast
+			.promise(createCardAPI(formData), {
+				pending: 'Creating...',
+				success: 'New card created',
+			})
+			.then((newCard) => {
+				handleCloseModal()
+				handleClose()
+				const boardClone = structuredClone(activeBoard)
+				const newColumns = boardClone.columns.map((column) => {
+					if (column._id === columnId) {
+						column.cards = [...column.cards, newCard]
+						column.cardOrderIds = [...column.cardOrderIds, newCard._id]
+						column.cards = column.cards.filter((card) => !card?.FE_PLACEHOLDER)
+						column.cardOrderIds = column.cards
+							.filter((card) => !card?.FE_PLACEHOLDER)
+							.map((card) => card._id)
+					}
+
+					return column
+				})
+
+				const newBoard = {
+					...boardClone,
+					columns: newColumns,
+				}
+
+				dispatch(setActiveBoard(newBoard))
+			})
 	}
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorEl(event.currentTarget)
 	}
+
 	const handleClose = () => {
 		setAnchorEl(null)
 	}
@@ -64,7 +114,7 @@ const HeaderColumn = ({ title, columnId }: props) => {
 			return setAnchorEl(null)
 		}
 
-		if (coloumn?.cards && coloumn?.cards.length > 0) {
+		if (!coloumn?.cards[0]?.FE_PLACEHOLDER) {
 			toast.error(
 				'Cannot delete column with cards. Please remove all cards before delete column',
 			)
@@ -76,8 +126,40 @@ const HeaderColumn = ({ title, columnId }: props) => {
 			description: 'Are you sure you want to delete this column',
 			confirmationText: 'Delete',
 		}).then(() => {
+			const boardClone = structuredClone(activeBoard)
+			const newColumns = boardClone.columns.filter(
+				(column) => column._id !== columnId,
+			)
+
+			const newBoard = {
+				...boardClone,
+				columns: newColumns,
+			}
+
+			dispatch(setActiveBoard(newBoard))
+			deleteColumnAPI(columnId)
 			setAnchorEl(null)
 		})
+	}
+
+	const onUpdateColumnTitle = (title: string) => {
+		const boardClone = structuredClone(activeBoard)
+		const newColumns = boardClone.columns.map((column) => {
+			if (column._id === columnId) {
+				column.title = title
+			}
+
+			return column
+		})
+
+		const newBoard = {
+			...boardClone,
+			columns: newColumns,
+		}
+
+		dispatch(setActiveBoard(newBoard))
+
+		updateColumnAPI(columnId, { title })
 	}
 	return (
 		<Box
@@ -92,19 +174,7 @@ const HeaderColumn = ({ title, columnId }: props) => {
 				borderTopRightRadius: '6px',
 			}}
 		>
-			<Button>
-				<Typography
-					variant='body1'
-					sx={{
-						fontWeight: 500,
-						cursor: 'pointer',
-						color: '#ffffff',
-						pointerEvents: 'none',
-					}}
-				>
-					{title}
-				</Typography>
-			</Button>
+			<ToggleFocusInput value={title} onChangedValue={onUpdateColumnTitle} />
 
 			<Box>
 				<Tooltip title='More options'>
@@ -141,7 +211,7 @@ const HeaderColumn = ({ title, columnId }: props) => {
 						<ListItemIcon>
 							<AddCard fontSize='small' />
 						</ListItemIcon>
-						<ListItemText>Add new card</ListItemText>
+						<ListItemText>Add card</ListItemText>
 						<Typography variant='body2' sx={{ color: 'text.secondary' }}>
 							⌘N
 						</Typography>
@@ -174,11 +244,23 @@ const HeaderColumn = ({ title, columnId }: props) => {
 						</Typography>
 					</MenuItem>
 					<Divider />
-					<MenuItem onClick={handleDeleteColumn}>
+					<MenuItem
+						onClick={handleDeleteColumn}
+						sx={{
+							'& span': {
+								color: 'error.main',
+							},
+						}}
+					>
 						<ListItemIcon>
-							<Delete fontSize='small' />
+							<Delete
+								fontSize='small'
+								sx={{
+									color: 'error.main',
+								}}
+							/>
 						</ListItemIcon>
-						<ListItemText>Remove this column</ListItemText>
+						<ListItemText>Remove column</ListItemText>
 					</MenuItem>
 				</Menu>
 			</Box>

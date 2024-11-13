@@ -1,11 +1,11 @@
 import { inject, injectable } from 'inversify'
-import { IBoard } from '~/databases/models/board.model'
-import { ICard } from '~/databases/models/card.model'
-import { IColumn } from '~/databases/models/column.model'
+import { DtoCreateBoard, DtoUpdateBoard } from '~/dtos/dtoBoard'
 import { BoardRepository } from '~/repositories/board.repository'
-import { NAME_SERVICE_INJECTION } from '~/utils/constant.util'
+import { DEFAULT_ITEM__PER_PAGE, DEFAULT_PAGE, NAME_SERVICE_INJECTION } from '~/utils/constant.util'
 import { BadRequest, NotFoundError } from '~/utils/error-response.util'
-import { slugify } from '~/utils/formatter.util'
+import { pagingSkip, slugify } from '~/utils/formatter.util'
+import { convertObjectId } from '~/utils/mongoose.util'
+import { Pagination } from '~/utils/type.util'
 
 const CONSTANT = {
   MSG_CREATE_BOARD_FAILED: 'Failed to create board',
@@ -19,50 +19,37 @@ const CONSTANT = {
 export class BoardService {
   constructor(@inject(NAME_SERVICE_INJECTION.BOARD_REPOSITORY) private readonly boardRepository: BoardRepository) {}
 
-  async createBoard(body: IBoard) {
-    const idBoard = await this.boardRepository.create({ ...body, slug: slugify(body.title) })
-    if (!idBoard) {
+  async createBoard(userId: string, body: DtoCreateBoard) {
+    const board = await this.boardRepository.create({
+      ...body,
+      slug: slugify(body.title),
+      ownerIds: [convertObjectId(userId)]
+    })
+    if (!board) {
       throw new BadRequest(CONSTANT.MSG_CREATE_BOARD_FAILED)
     }
 
-    return await this.boardRepository.findById(idBoard)
+    return board
   }
 
-  async getDetailBoard(id: string) {
-    const boardDetail = await this.boardRepository.findByIdAndLookup(id)
-
-    if (!boardDetail) {
-      throw new NotFoundError(CONSTANT.MSG_BOARD_NOT_FOUND)
-    }
-
-    const resBoard: IBoard & { columns: (IColumn & { cards: ICard[] })[] } = JSON.parse(JSON.stringify(boardDetail))
-
-    resBoard.columns = resBoard.columns.map((column: IColumn & { cards: ICard[] }) => {
-      column.cards = resBoard.cards.filter((card: ICard) => card.columnId === column._id)
-      return column
-    })
-
-    resBoard.cards = undefined
-    return resBoard
+  async getDetailBoard(userId: string, boardId: string) {
+    return await this.boardRepository.getDetailsBoard(userId, boardId)
   }
 
-  async updateBoardById(id: string, body: Partial<IBoard>) {
+  async updateBoardById(id: string, body: DtoUpdateBoard) {
     const board = await this.boardRepository.findById(id)
     if (!board) {
       throw new NotFoundError(CONSTANT.MSG_BOARD_NOT_FOUND)
     }
 
-    const res = await this.boardRepository.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          ...body,
-          updatedAt: Date.now()
-        }
-      },
-      { returnDocument: 'after' }
-    )
-
+    const res = await this.boardRepository.findByIdAndUpdate(id, {
+      $set: {
+        ...body,
+        slug: slugify(body?.title ? body.title : board.title),
+        columnOrderIds:
+          body?.columnOrderIds?.length > 0 ? body.columnOrderIds.map((id) => convertObjectId(id)) : board.columnOrderIds
+      }
+    })
     if (!res) {
       throw new BadRequest(CONSTANT.MSG_UPDATE_BOARD_FAILED)
     }
@@ -71,11 +58,9 @@ export class BoardService {
   }
 
   async pushColumnIds(boardId: string, columnId: string) {
-    const res = await this.boardRepository.findByIdAndUpdate(
-      boardId,
-      { $push: { columnOrderIds: columnId } },
-      { returnDocument: 'after' }
-    )
+    const res = await this.boardRepository.findByIdAndUpdate(boardId, {
+      $push: { columnOrderIds: convertObjectId(columnId), columns: convertObjectId(columnId) }
+    })
 
     if (!res) {
       throw new BadRequest(CONSTANT.MSG_PUSH_COLUMN_IDS_FAILED)
@@ -86,7 +71,7 @@ export class BoardService {
 
   async findBoardById(boardId: string) {
     const board = await this.boardRepository.findById(boardId)
-    if (!board) {
+    if (!board || board._destroy) {
       throw new NotFoundError(CONSTANT.MSG_BOARD_NOT_FOUND)
     }
     return board
@@ -98,18 +83,36 @@ export class BoardService {
       throw new NotFoundError(CONSTANT.MSG_BOARD_NOT_FOUND)
     }
 
-    const res = await this.boardRepository.findByIdAndUpdate(
-      boardId,
-      {
-        $set: { _destroy: true }
-      },
-      { returnDocument: 'after' }
-    )
-
+    const res = await this.boardRepository.findByIdAndUpdate(boardId, {
+      $set: { _destroy: true }
+    })
     if (!res) {
       throw new BadRequest(CONSTANT.MSG_DELETE_BOARD_FAILED)
     }
 
     return res._id
+  }
+
+  async getListBoard(userId: string, pagination?: Pagination) {
+    const skip = pagingSkip(pagination?.page || DEFAULT_PAGE, pagination?.itemPerPage || DEFAULT_ITEM__PER_PAGE)
+    const limit = pagination?.itemPerPage || DEFAULT_ITEM__PER_PAGE
+    const data = await this.boardRepository.getListBoardByUserId(userId, skip, limit)
+
+    return {
+      boards: data[0].boards,
+      total: data[0].total[0]?.total || 0
+    }
+  }
+
+  async pullColumnIds(boardId: string, columnId: string) {
+    const res = await this.boardRepository.findByIdAndUpdate(boardId, {
+      $pull: { columnOrderIds: convertObjectId(columnId), columns: convertObjectId(columnId) }
+    })
+
+    if (!res) {
+      throw new BadRequest(CONSTANT.MSG_PUSH_COLUMN_IDS_FAILED)
+    }
+
+    return res
   }
 }

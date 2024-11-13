@@ -52,7 +52,6 @@ const NewColumnModal = ({
 				}}
 			>
 				<Typography
-					variant='h6'
 					sx={{
 						color: 'white',
 					}}

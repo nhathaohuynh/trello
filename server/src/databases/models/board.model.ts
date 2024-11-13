@@ -1,48 +1,95 @@
-import Joi from 'joi'
-import { Document, ObjectId } from 'mongodb'
-import { BOARD_TYPES, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/constant.util'
-import { BoardType } from '~/utils/type.util'
+import mongoose, { Document, Schema, Types } from 'mongoose'
+import { BOARD_TYPES } from '~/utils/constant.util'
 
-const BOARD_COLLECTION_NAME = 'Boards'
+const DOCUMENT_NAME = 'board'
+const COLECTION_NAME = 'boards'
 
 export interface IBoard extends Document {
-  _id?: ObjectId
+  _id: Types.ObjectId
   title: string
   slug: string
-  type: BoardType
+  type: Enumerator<typeof BOARD_TYPES>
+  cover?: string
   description: string
-  columnOrderIds: ObjectId[]
-  createdAt: Date
-  updatedAt: Date | null
-  _destroy: boolean
+  ownerIds: Types.ObjectId[]
+  memberIds?: Types.ObjectId[]
+  columnOrderIds?: Types.ObjectId[]
+  columns: Types.ObjectId[]
+  _destroy?: boolean
 }
 
-const BOARD_COLLECTION_SCHEMA = Joi.object<IBoard>({
-  title: Joi.string().required().min(3).max(50).trim().strict(),
+const Model: Schema = new Schema<IBoard>(
+  {
+    title: {
+      type: String,
+      required: true,
+      minlength: 3,
+      maxlength: 256,
+      trim: true
+    },
+    slug: {
+      type: String,
+      required: true,
+      minlength: 3,
+      trim: true
+    },
+    type: {
+      type: String,
+      enum: [BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE],
+      required: true
+    },
+    description: {
+      type: String,
+      required: true,
+      minlength: 3,
+      trim: true
+    },
+    cover: {
+      type: String,
+      default: null
+    },
+    ownerIds: {
+      type: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'user'
+        }
+      ],
+      required: true
+    },
+    memberIds: {
+      type: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'user'
+        }
+      ],
+      default: []
+    },
+    columnOrderIds: {
+      type: [Schema.Types.ObjectId],
+      default: []
+    },
+    columns: {
+      type: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'column'
+        }
+      ],
+      default: []
+    },
 
-  slug: Joi.string().required().min(3).trim().strict(),
+    _destroy: {
+      type: Boolean,
+      default: false
+    }
+  },
+  {
+    timestamps: true,
+    collection: COLECTION_NAME
+  }
+)
 
-  description: Joi.string().required().min(3).max(256).trim().strict(),
-
-  columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
-
-  type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required(),
-
-  createdAt: Joi.date().timestamp('javascript').default(Date.now),
-
-  updatedAt: Joi.date().timestamp('javascript').default(null),
-
-  _destroy: Joi.boolean().default(false)
-})
-
-export const BOARD_UPDATE_SCHEMA = Joi.object<Partial<IBoard>>({
-  title: Joi.string().min(3).max(50).trim().optional(),
-
-  description: Joi.string().min(3).max(256).trim().optional(),
-
-  columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).optional(),
-
-  type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).optional()
-})
-
-export { BOARD_COLLECTION_NAME, BOARD_COLLECTION_SCHEMA }
+const BoardModel = mongoose.model<IBoard>(DOCUMENT_NAME, Model)
+export default BoardModel

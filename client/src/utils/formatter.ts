@@ -27,7 +27,7 @@ export const generatePlaceholderCard = (column: IColumn) => {
 		boardId: column.boardId,
 		columnId: column._id,
 		FE_PLACEHOLDER: true,
-		title: 'Empty Column',
+		title: '',
 		description: null,
 		cover: null,
 		memberIds: [],

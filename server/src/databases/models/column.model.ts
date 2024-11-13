@@ -1,34 +1,66 @@
-import Joi from 'joi'
-import { Document, ObjectId } from 'mongodb'
-import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/constant.util'
+import mongoose, { Document, Schema, Types } from 'mongoose'
+
+const DOCUMENT_NAME = 'column'
+const COLECTION_NAME = 'columns'
 
 export interface IColumn extends Document {
-  _id?: ObjectId
-  boardId: ObjectId
+  _id: Types.ObjectId
+  boardId: Types.ObjectId
   title: string
-  cardOrderIds: ObjectId[]
-  createdAt: Date
-  updatedAt: Date | null
+  cardOrderIds: Types.ObjectId[]
+  cards: Types.ObjectId[]
   _destroy: boolean
 }
 
-// Define Collection (name & schema)
-const COLUMN_COLLECTION_NAME = 'Columns'
-const COLUMN_COLLECTION_SCHEMA = Joi.object({
-  boardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-  title: Joi.string().required().min(3).max(50).trim().strict(),
+const ColumnSchema: Schema = new Schema<IColumn>(
+  {
+    boardId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      validate: {
+        validator: function (value: Types.ObjectId) {
+          return Types.ObjectId.isValid(value)
+        },
+        message: 'Invalid ObjectId for boardId'
+      },
+      ref: 'board'
+    },
+    title: {
+      type: String,
+      required: true,
+      minlength: 3,
+      maxlength: 256,
+      trim: true
+    },
+    cardOrderIds: {
+      type: [Schema.Types.ObjectId],
+      default: [],
+      validate: {
+        validator: function (value: Types.ObjectId[]) {
+          return value.every((id) => Types.ObjectId.isValid(id))
+        },
+        message: 'Invalid ObjectId in cardOrderIds array'
+      }
+    },
+    cards: {
+      type: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'card'
+        }
+      ],
+      default: []
+    },
+    _destroy: {
+      type: Boolean,
+      default: false
+    }
+  },
+  {
+    timestamps: true,
+    collection: COLECTION_NAME
+  }
+)
 
-  // Lưu ý các item trong mảng cardOrderIds là ObjectId nên cần thêm pattern cho chuẩn nhé, (lúc quay video số 57 mình quên nhưng sang đầu video số 58 sẽ có nhắc lại về cái này.)
-  cardOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
-
-  createdAt: Joi.date().timestamp('javascript').default(Date.now),
-  updatedAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false)
-})
-
-export const COLUMN_UPDATE_SCHEMA = Joi.object({
-  title: Joi.string().min(3).max(50).trim().optional(),
-  cardOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).optional()
-})
-
-export { COLUMN_COLLECTION_NAME, COLUMN_COLLECTION_SCHEMA }
+const ColumnModel = mongoose.model<IColumn>(DOCUMENT_NAME, ColumnSchema)
+export default ColumnModel

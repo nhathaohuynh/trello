@@ -60,8 +60,6 @@ const Security = () => {
 		confirm({
 			title: 'Are you sure?',
 			description: 'Do you really want to change your password?',
-			cancellationText: 'Cancel',
-			confirmationText: 'Yes',
 		}).then(() => {
 			toast
 				.promise(
@@ -103,7 +101,7 @@ const Security = () => {
 				justifyContent='center'
 				sx={{ mb: 3, mx: 'auto' }}
 				gap={2}
-				color='primary.mainChannel'
+				color='primary.main'
 			>
 				<SecurityUpdate sx={{ fontSize: 32 }} />
 				<Typography
@@ -140,6 +138,9 @@ const Security = () => {
 					margin='normal'
 					value={currentPassword}
 					onChange={(e) => setCurrentPassword(e.target.value)}
+					sx={{
+						'& fieldset': { borderColor: 'primary.mainChannel' },
+					}}
 				/>
 				<TextField
 					fullWidth

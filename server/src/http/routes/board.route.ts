@@ -3,16 +3,24 @@ import { container } from '~/config/inversify.config'
 import { BoardController } from '../controllers/board.controller'
 import { isAuthorized } from '../middlewares/authorized'
 import { catchErrorHandler } from '../middlewares/catch-error-handler'
+import { upload } from '../middlewares/multer-upload'
 import { validationPipe } from '../middlewares/validationPipe'
 import { ROUTE_APP } from './route-config-app'
 
 const RouteBoard = express.Router()
-
 const boardController = container.get<BoardController>(BoardController)
 
-RouteBoard.route(ROUTE_APP.boards.child.getList.path)
-  .get()
-  .post(isAuthorized, validationPipe(), catchErrorHandler(boardController.createBoard.bind(boardController)))
+RouteBoard.route(ROUTE_APP.boards.child.getList.path).get(
+  isAuthorized,
+  catchErrorHandler(boardController.getListBoard.bind(boardController))
+)
+
+RouteBoard.route(ROUTE_APP.boards.child.create.path).post(
+  isAuthorized,
+  upload.single('cover'),
+  validationPipe(),
+  catchErrorHandler(boardController.createBoard.bind(boardController))
+)
 
 RouteBoard.route(ROUTE_APP.boards.child.getById.path).get(
   isAuthorized,

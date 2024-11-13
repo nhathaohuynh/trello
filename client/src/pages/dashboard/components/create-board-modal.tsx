@@ -20,13 +20,18 @@ import { useState } from 'react'
 interface NewBoardModalProps {
 	open: boolean
 	onClose: () => void
-	onCreate: (board: { title: string; description: string }) => void
+	onCreate: (board: {
+		title: string
+		description: string
+		cover?: File | null
+		type: string
+	}) => void
 }
 
 const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 	const [title, setTitle] = useState('')
 	const [description, setDescription] = useState('')
-	const [isPublic, setIsPublic] = useState(true)
+	const [type, setType] = useState<'public' | 'private'>('public')
 	const [error, setError] = useState('')
 	const [coverImage, setCoverImage] = useState<File | null>(null)
 
@@ -37,15 +42,38 @@ const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 			return
 		}
 
+		if (title.length > 50) {
+			setError('Title is too long')
+			return
+		}
+
 		if (!description.trim()) {
 			setError('Description is required')
 			return
 		}
 
-		// Call the onCreate prop with the new board data
-		onCreate({ title, description })
+		if (description.length > 256) {
+			setError('Description is too long')
+			return
+		}
+
+		if (!!coverImage) {
+			onCreate({
+				title,
+				description,
+				cover: coverImage,
+				type,
+			})
+		} else {
+			onCreate({
+				title,
+				description,
+				type,
+			})
+		}
 
 		// Clear fields and close modal
+		setCoverImage(null)
 		setTitle('')
 		setDescription('')
 		setError('')
@@ -71,7 +99,6 @@ const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 				}}
 			>
 				<Typography
-					variant='h6'
 					sx={{
 						color: 'white',
 					}}
@@ -107,7 +134,7 @@ const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 				<Box sx={{ mt: 2 }}>
 					<TextField
 						fullWidth
-						label='Board name'
+						label='Title'
 						variant='outlined'
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
@@ -145,6 +172,7 @@ const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 								variant='contained'
 								startIcon={<Cloud />}
 								component='label'
+								className='interceptor-loading'
 								sx={{
 									bgcolor: 'primary.mainChannel',
 									color: 'white',
@@ -203,8 +231,8 @@ const NewBoardModal = ({ open, onClose, onCreate }: NewBoardModalProps) => {
 					>
 						<RadioGroup
 							row
-							value={isPublic ? 'public' : 'private'}
-							onChange={(e) => setIsPublic(e.target.value === 'public')}
+							value={type}
+							onChange={(e) => setType(e.target.value as 'public' | 'private')}
 						>
 							<FormControlLabel
 								value='public'

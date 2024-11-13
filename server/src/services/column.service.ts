@@ -1,10 +1,10 @@
 import { inject, injectable } from 'inversify'
 import { ObjectId } from 'mongodb'
-import { ICard } from '~/databases/models/card.model'
-import { IColumn } from '~/databases/models/column.model'
+import { DtoCreateColumn, DtoUpdateColumn } from '~/dtos/dtoColumn'
 import { ColumnRepository } from '~/repositories/column.repository'
 import { NAME_SERVICE_INJECTION } from '~/utils/constant.util'
 import { BadRequest } from '~/utils/error-response.util'
+import { convertObjectId } from '~/utils/mongoose.util'
 import { BoardService } from './board.service'
 
 const CONSTANT = {
@@ -12,7 +12,9 @@ const CONSTANT = {
   MSG_COLUMN_NOT_FOUND: 'Column not found',
   MSG_BOARD_NOT_FOUND: 'Board not found',
   MSG_COLUMN_PUSH_CARD_IDS_FAILED: 'Failed to push card ids',
-  MSG_COLUMN_PULL_CARD_IDS_FAILED: 'Failed to pull card ids'
+  MSG_COLUMN_PULL_CARD_IDS_FAILED: 'Failed to pull card ids',
+  MSG_COMLUMN_DELETE_FAILED: 'Failed to delete column',
+  MSG_VALID_DELETE_COLUMN: 'Column has cards, please delete all cards before delete column'
 }
 
 @injectable()
@@ -22,39 +24,27 @@ export class ColumnService {
     @inject(BoardService) private readonly boardService: BoardService
   ) {}
 
-  async createColumn(body: IColumn) {
+  async createColumn(body: DtoCreateColumn) {
     const board = await this.boardService.findBoardById(body.boardId.toString())
 
-    if (!board) {
-      throw new BadRequest(CONSTANT.MSG_BOARD_NOT_FOUND)
-    }
-
-    const idCOlumn = await this.columnRepository.create(body)
-    if (!idCOlumn) {
-      throw new BadRequest(CONSTANT.MSG_CREATE_COLUMN_FAILED)
-    }
-
-    const column = await this.columnRepository.findById(idCOlumn)
+    const column = await this.columnRepository.create({
+      ...body,
+      boardId: board._id
+    })
 
     if (!column) {
       throw new BadRequest(CONSTANT.MSG_COLUMN_NOT_FOUND)
     }
 
-    const resColumn: IColumn & { cards: ICard[] } = JSON.parse(JSON.stringify(column))
+    await this.boardService.pushColumnIds(body.boardId.toString(), column._id.toString())
 
-    resColumn.cards = []
-
-    await this.boardService.pushColumnIds(body.boardId.toString(), idCOlumn.toString())
-
-    return resColumn
+    return column
   }
 
-  async pushColumnIds(columnId: string, cardId: string) {
-    const res = await this.columnRepository.findByIdAndUpdate(
-      new ObjectId(columnId),
-      { $push: { cardOrderIds: new ObjectId(cardId) } },
-      { returnDocument: 'after' }
-    )
+  async pushCardIds(columnId: string, cardId: string) {
+    const res = await this.columnRepository.findByIdAndUpdate(columnId, {
+      $push: { cardOrderIds: new ObjectId(cardId), cards: new ObjectId(cardId) }
+    })
 
     if (!res) {
       throw new BadRequest(CONSTANT.MSG_COLUMN_PUSH_CARD_IDS_FAILED)
@@ -63,33 +53,45 @@ export class ColumnService {
     return res
   }
 
-  async updateColumnById(columnId: string, body: Partial<IColumn>) {
-    const column = await this.findColumnById(columnId)
+  async pullCardIds(columnId: string, cardId: string) {
+    const res = await this.columnRepository.findByIdAndUpdate(columnId, {
+      $pull: { cardOrderIds: new ObjectId(cardId), cards: new ObjectId(cardId) }
+    })
 
-    if (!column) {
-      throw new BadRequest(CONSTANT.MSG_COLUMN_NOT_FOUND)
+    if (!res) {
+      throw new BadRequest(CONSTANT.MSG_COLUMN_PULL_CARD_IDS_FAILED)
     }
 
-    const res = await this.columnRepository.findByIdAndUpdate(
-      columnId,
-      {
-        $set: {
-          ...body,
-          updatedAt: Date.now()
-        }
-      },
-      { returnDocument: 'after' }
-    )
+    return res
+  }
 
-    return res._id
+  async updateColumnById(columnId: string, body: DtoUpdateColumn) {
+    const column = await this.findColumnById(columnId)
+
+    const res = await this.columnRepository.findByIdAndUpdate(columnId, {
+      $set: {
+        ...body,
+        cardOrderIds:
+          body?.cardOrderIds?.length > 0 ? body?.cardOrderIds?.map((id) => convertObjectId(id)) : column.cardOrderIds,
+        cards:
+          body?.cardOrderIds?.length > 0 ? body?.cardOrderIds?.map((id) => convertObjectId(id)) : column.cardOrderIds
+      }
+    })
+
+    if (!res) {
+      throw new BadRequest(CONSTANT.MSG_CREATE_COLUMN_FAILED)
+    }
+
+    return {
+      _id: res._id
+    }
   }
 
   async findColumnById(columnId: string) {
     const column = await this.columnRepository.findById(columnId)
-    if (!column) {
+    if (!column || column._destroy) {
       throw new BadRequest(CONSTANT.MSG_COLUMN_NOT_FOUND)
     }
-
     return column
   }
 
@@ -100,17 +102,25 @@ export class ColumnService {
       throw new BadRequest(CONSTANT.MSG_COLUMN_NOT_FOUND)
     }
 
-    const res = await this.columnRepository.findByIdAndUpdate(
-      columnId,
-      {
-        $set: {
-          _destroy: true
-        }
-      },
-      { returnDocument: 'after' }
-    )
+    if (column.cardOrderIds.length > 0 || column.cards.length > 0) {
+      throw new BadRequest(CONSTANT.MSG_VALID_DELETE_COLUMN)
+    }
 
-    return res._id
+    await this.boardService.pullColumnIds(column.boardId.toString(), columnId)
+
+    const res = await this.columnRepository.findByIdAndUpdate(columnId, {
+      $set: {
+        _destroy: true
+      }
+    })
+
+    if (!res) {
+      throw new BadRequest(CONSTANT.MSG_COMLUMN_DELETE_FAILED)
+    }
+
+    return {
+      _id: columnId
+    }
   }
 
   async moveCardBetweenColumns(body: {
@@ -120,38 +130,28 @@ export class ColumnService {
     cardOrderIds: string[]
   }) {
     const { cardId, columnId, newColumnId, cardOrderIds } = body
-
-    const column = await this.findColumnById(columnId)
-    const newColumn = await this.findColumnById(newColumnId)
-
-    if (!column || !newColumn) {
-      throw new BadRequest(CONSTANT.MSG_COLUMN_NOT_FOUND)
-    }
-
-    const res = await this.columnRepository.findByIdAndUpdate(
-      columnId,
-      {
-        $pull: { cardOrderIds: cardId }
-      },
-      { returnDocument: 'after' }
-    )
+    await Promise.all([this.findColumnById(columnId), this.findColumnById(newColumnId)])
+    const res = await this.columnRepository.findByIdAndUpdate(columnId, {
+      $pull: { cardOrderIds: cardId, cards: cardId }
+    })
 
     if (!res) {
       throw new BadRequest(CONSTANT.MSG_COLUMN_PULL_CARD_IDS_FAILED)
     }
 
-    const resNewColumn = await this.columnRepository.findByIdAndUpdate(
-      newColumnId,
-      {
-        $set: { cardOrderIds: cardOrderIds }
-      },
-      { returnDocument: 'after' }
-    )
+    const resNewColumn = await this.columnRepository.findByIdAndUpdate(newColumnId, {
+      $set: {
+        cardOrderIds: cardOrderIds.map((id) => convertObjectId(id)),
+        cards: cardOrderIds.map((id) => convertObjectId(id))
+      }
+    })
 
     if (!resNewColumn) {
       throw new BadRequest(CONSTANT.MSG_COLUMN_PUSH_CARD_IDS_FAILED)
     }
 
-    return resNewColumn._id
+    return {
+      _id: cardId
+    }
   }
 }

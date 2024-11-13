@@ -1,6 +1,6 @@
 import { plainToClass } from 'class-transformer'
 import { validateSync } from 'class-validator'
-import dtoRegistry from '~/interface/dtos/dtoRegistration'
+import dtoRegistry from '~//dtos/dtoRegistration'
 
 export const validation = <DTO>(nameStrategy: string, data: object) => {
   const classValidation = dtoRegistry.get(nameStrategy)

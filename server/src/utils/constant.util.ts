@@ -94,3 +94,15 @@ export const TEMPLATE_EMAIL_VERIFY_EMAIL = `<!DOCTYPE html>
 export const LITMIT_COMMON_FILE_SIZE = 1024 * 1024 * 10 // 10MB
 
 export const ALLOW_FILE_TYPE = ['image/png', 'image/jpg', 'image/jpeg']
+
+export const DEFAULT_PAGE = 1
+
+export const DEFAULT_ITEM__PER_PAGE = 12
+
+export const DEFAULT_AVATAR =
+  'https://res.cloudinary.com/dk9v8v1lp/image/upload/v1626820734/trello/avatars/default-avatar.png'
+
+export const ROLE = {
+  USER: 'user',
+  ADMIN: 'admin'
+}

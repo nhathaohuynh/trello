@@ -1,6 +1,6 @@
 import { nameStrateryValidation } from '~/http/routes/route-config-app'
 import { Constructor } from '~/utils/type.util'
-import { DtoBase } from '../base/DtoBase'
+import { DtoBase } from './dto.base'
 import { DtoCreateBoard, DtoUpdateBoard } from './dtoBoard'
 import { DtoCreateCard } from './dtoCard'
 import { DtoCreateColumn } from './dtoColumn'

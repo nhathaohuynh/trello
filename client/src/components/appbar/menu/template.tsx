@@ -32,6 +32,9 @@ export default function Template() {
 				aria-expanded={open ? 'true' : undefined}
 				onClick={handleClick}
 				endIcon={<ExpandMore />}
+				sx={{
+					color: 'white',
+				}}
 			>
 				Templates
 			</Button>

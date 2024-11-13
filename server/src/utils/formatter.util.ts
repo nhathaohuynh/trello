@@ -10,3 +10,11 @@ export const slugify = (text: string) => {
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
 }
+
+export const pagingSkip = (page: number, limit: number) => {
+  if (!page || !limit) return 0
+
+  if (page <= 0 || limit <= 0) return 0
+
+  return 1 * (page - 1) * limit
+}

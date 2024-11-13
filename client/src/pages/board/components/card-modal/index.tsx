@@ -32,6 +32,7 @@ const CardModal = ({
 	const {
 		control,
 		handleSubmit,
+		reset,
 		formState: { errors },
 	} = useForm({
 		defaultValues: {
@@ -47,10 +48,10 @@ const CardModal = ({
 		if (typeof coverImage !== 'string') {
 			onSubmitData({ ...data, coverImage: coverImage })
 		} else {
-			onSubmitData({
-				title: data.title,
-			})
+			onSubmitData(data)
 		}
+		reset()
+		setCoverImage('')
 		onClose()
 	}
 
@@ -71,7 +72,7 @@ const CardModal = ({
 					py: 1.5,
 				}}
 			>
-				<Typography variant='h6' sx={{ color: 'white' }}>
+				<Typography sx={{ color: 'white' }}>
 					{!isUpdate ? 'New Card' : 'Update Card'}
 				</Typography>
 				<Box

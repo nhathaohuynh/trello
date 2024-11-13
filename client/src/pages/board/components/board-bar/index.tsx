@@ -7,12 +7,9 @@ import NoteAdd from '@mui/icons-material/NoteAdd'
 import PersonAdd from '@mui/icons-material/PersonAdd'
 import VpnLock from '@mui/icons-material/VpnLock'
 import { capitalize, Stack } from '@mui/material'
-import Avatar from '@mui/material/Avatar'
-import AvatarGroup from '@mui/material/AvatarGroup'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
-import Tooltip from '@mui/material/Tooltip'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
@@ -22,6 +19,7 @@ import { selectActiveBoard, setActiveBoard } from '~/redux/board/board.slice'
 import { useAppDispatch } from '~/redux/store'
 import { generatePlaceholderCard } from '~/utils/formatter'
 import NewColumnModal from '../create-column'
+import BoardUserGroup from '../user-group/user-group'
 
 const MENU_STYLE = {
 	padding: 1,
@@ -54,16 +52,9 @@ const BoardBar = () => {
 	const activeBoard = useSelector(selectActiveBoard)
 	const dispatch = useAppDispatch()
 
-	const handleAddColumn = async ({
-		title,
-		description,
-	}: {
-		title: string
-		description: string
-	}) => {
+	const handleAddColumn = async ({ title }: { title: string }) => {
 		const data: ICreateColumn = {
 			boardId: boardId as string,
-			description,
 			title,
 		}
 
@@ -122,7 +113,7 @@ const BoardBar = () => {
 					sx={MENU_STYLE}
 					clickable
 					icon={<VpnLock />}
-					label={capitalize(board?.type)}
+					label={board?.type && capitalize(board?.type)}
 				/>
 
 				<Chip
@@ -150,11 +141,13 @@ const BoardBar = () => {
 						sx={{
 							color: 'primary.main',
 							fontSize: '12px',
-							fontWeight: 400,
+							fontWeight: 500,
 							px: 2,
-							py: 0.5,
+							py: 0.8,
 							width: 'fit-content',
-							borderColor: '#ececec',
+							bgcolor: (theme) =>
+								theme.palette.mode === 'dark' ? '#FFFFFF29' : '#00000014',
+							border: 'none',
 						}}
 						startIcon={<NoteAdd />}
 						onClick={handleOpenModal}
@@ -168,12 +161,14 @@ const BoardBar = () => {
 						sx={{
 							ml: 2,
 							px: 2,
-							py: 0.5,
+							py: 0.8,
 							width: 'fit-content',
 							color: 'primary.main',
-							borderColor: '#ececec',
 							fontSize: '12px',
-							fontWeight: 400,
+							fontWeight: 500,
+							bgcolor: (theme) =>
+								theme.palette.mode === 'dark' ? '#FFFFFF29' : '#00000014',
+							border: 'none',
 						}}
 					>
 						Invite
@@ -185,84 +180,20 @@ const BoardBar = () => {
 						sx={{
 							ml: 2,
 							px: 2,
-							py: 0.5,
+							py: 0.8,
 							width: 'fit-content',
 							fontSize: '12px',
-							fontWeight: 400,
+							fontWeight: 500,
 							color: 'primary.main',
-							borderColor: '#ececec',
+							bgcolor: (theme) =>
+								theme.palette.mode === 'dark' ? '#FFFFFF29' : '#00000014',
+							border: 'none',
 						}}
 					>
 						Message
 					</Button>
 				</Stack>
-
-				<AvatarGroup
-					max={7}
-					sx={{
-						'& .MuiAvatar-root': {
-							width: '32px',
-							height: '32px',
-							border: 'none',
-							color: 'white',
-							cursor: 'pointer',
-							fontSize: '13px',
-							'&:first-of-type': {
-								bgcolor: '#a4b0de',
-							},
-						},
-					}}
-				>
-					<Tooltip title='Huynh Nhat Hao'>
-						<Avatar
-							alt='Remy Sharp'
-							src='https://th.bing.com/th/id/OIP.iaSkdG5ClYhuJycAh1wWJwHaLH?pid=ImgDet&w=199&h=298&c=7'
-						/>
-					</Tooltip>
-					<Tooltip title='Huynh Nhat Hao'>
-						<Avatar
-							alt='Remy Sharp'
-							src='https://th.bing.com/th/id/OIP.soF0DDqRXG9P_rrbbN6EpgHaJ4?pid=ImgDet&w=199&h=265&c=7'
-						/>
-					</Tooltip>
-					<Tooltip title='Huynh Nhat Hao'>
-						<Avatar
-							alt='Remy Sharp'
-							src='https://th.bing.com/th/id/OIP.DM5QHt-pDCaxtPtdfOQR8gHaJQ?pid=ImgDet&w=199&h=248&c=7'
-						/>
-					</Tooltip>
-					<Tooltip title='Huynh Nhat Hao'>
-						<Avatar
-							alt='Remy Sharp'
-							src='https://th.bing.com/th/id/OIP.w0x35GFdhw9qxSJeyoGIoQHaJV?pid=ImgDet&w=199&h=250&c=7'
-						/>
-					</Tooltip>
-
-					<Tooltip title='Huynh Nhat Hao'>
-						<Avatar
-							alt='Remy Sharp'
-							src='https://th.bing.com/th/id/OIP.iaSkdG5ClYhuJycAh1wWJwHaLH?pid=ImgDet&w=199&h=298&c=7'
-						/>
-					</Tooltip>
-					<Tooltip title='Huynh Nhat Hao'>
-						<Avatar
-							alt='Remy Sharp'
-							src='https://th.bing.com/th/id/OIP.soF0DDqRXG9P_rrbbN6EpgHaJ4?pid=ImgDet&w=199&h=265&c=7'
-						/>
-					</Tooltip>
-					<Tooltip title='Huynh Nhat Hao'>
-						<Avatar
-							alt='Remy Sharp'
-							src='https://th.bing.com/th/id/OIP.DM5QHt-pDCaxtPtdfOQR8gHaJQ?pid=ImgDet&w=199&h=248&c=7'
-						/>
-					</Tooltip>
-					<Tooltip title='Huynh Nhat Hao'>
-						<Avatar
-							alt='Remy Sharp'
-							src='https://th.bing.com/th/id/OIP.w0x35GFdhw9qxSJeyoGIoQHaJV?pid=ImgDet&w=199&h=250&c=7'
-						/>
-					</Tooltip>
-				</AvatarGroup>
+				<BoardUserGroup />
 			</Box>
 
 			{isModalOpen && (

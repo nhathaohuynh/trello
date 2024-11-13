@@ -9,7 +9,7 @@ import {
   DtoUserLogin,
   DtoUserRegistration,
   DtoVerifyToken
-} from '~/interface/dtos/dtoUser'
+} from '~/dtos/dtoUser'
 import { UserRepository } from '~/repositories/user.repository'
 import { NAME_SERVICE_INJECTION, TEMPLATE_EMAIL_VERIFY_EMAIL } from '~/utils/constant.util'
 import { replacePlaceholder } from '~/utils/email.util'
@@ -46,11 +46,7 @@ export class UserService {
 
     const hashPassword = bcrypt.hashSync(body.password)
     const verifyToken = crypto.randomUUID()
-    const idUser = await this.userRepository.create({ ...body, password: hashPassword, verifyToken })
-
-    if (!idUser) {
-      throw new BadRequest(CONSTANT.MSG_CREATE_USER_FAILED)
-    }
+    const user = await this.userRepository.create({ ...body, password: hashPassword, verifyToken })
 
     const linkVerify = `${env.CLIENT_URL}/verify?email=${body.email}&token=${verifyToken}`
 
@@ -61,8 +57,6 @@ export class UserService {
     }
 
     emailService.sendSingleMail(emailOptions)
-
-    const user = await this.userRepository.findById(idUser)
 
     return user?._id
   }
@@ -107,9 +101,16 @@ export class UserService {
       throw new NotAcceptable(CONSTANT.MSG_NOT_ACCEPTABLE)
     }
 
-    const res = await this.userRepository.findByIdAndUpdate(user._id, { $set: { isActive: true, verifyToken: null } })
+    const res = await this.userRepository.findByIdAndUpdate(user._id.toString(), {
+      $set: { isActive: true, verifyToken: null }
+    })
 
-    return res._id
+    if (!res) {
+      throw new BadRequest(CONSTANT.MSG_UPDATE_USER_FAILED)
+    }
+    return {
+      _id: res._id
+    }
   }
 
   async refreshToken(oldRefreshToken: string) {
@@ -140,16 +141,12 @@ export class UserService {
       throw new NotFoundError(CONSTANT.MSG_USER_NOT_FOUND)
     }
 
-    const res = await this.userRepository.findByIdAndUpdate(
-      userId,
-      {
-        $set: {
-          ...body,
-          updatedAt: Date.now()
-        }
-      },
-      { returnDocument: 'after' }
-    )
+    const res = await this.userRepository.findByIdAndUpdate(userId, {
+      $set: {
+        ...body,
+        updatedAt: Date.now()
+      }
+    })
 
     if (!res) {
       throw new BadRequest(CONSTANT.MSG_UPDATE_USER_FAILED)
@@ -185,7 +182,9 @@ export class UserService {
       throw new BadRequest(CONSTANT.MSG_UPDATE_USER_FAILED)
     }
 
-    return res._id
+    return {
+      _id: res._id
+    }
   }
 
   async forgotPassword(body: { email: string }) {

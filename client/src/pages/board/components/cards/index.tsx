@@ -8,18 +8,19 @@ interface props {
 }
 
 const Cards = ({ cards }: props) => {
+	if (!cards) return
+
 	const items = cards?.map((card: ICard) => card._id)
 	return (
 		<SortableContext items={items} strategy={verticalListSortingStrategy}>
 			<Box
 				sx={{
+					overflowY: 'auto',
+					p: '8px 5px',
+					m: '4px 4px',
 					display: 'flex',
 					flexDirection: 'column',
 					gap: 1,
-					p: '8px 5px',
-					m: '5px 5px',
-					overflowX: 'hidden',
-					overflowY: 'auto',
 					maxHeight: (theme) =>
 						`calc(${theme.appSetting.columnContentHeight} - ${theme.spacing(
 							5,

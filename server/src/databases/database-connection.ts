@@ -1,25 +1,15 @@
-import { Db, MongoClient, ServerApiVersion } from 'mongodb'
+import mongoose from 'mongoose'
 import env from '~/config/env.config'
-import { BadRequest } from '~/utils/error-response.util'
+import { InternalServerError } from '~/utils/error-response.util'
 
 export class Database {
   private static instance: Database
-  private client: MongoClient
-  private db: Db | null = null
   private readonly uri: string
   private readonly dbName: string
 
   private constructor() {
     this.uri = env.DB_URI
     this.dbName = env.DB_NAME
-    this.client = new MongoClient(this.uri, {
-      serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true
-      }
-    })
-    this.client.connect()
   }
 
   static getInstance(): Database {
@@ -30,31 +20,34 @@ export class Database {
   }
 
   async connect(): Promise<void> {
-    if (this.db) {
+    if (mongoose.connection.readyState === 1) {
+      // Already connected
       return
     }
 
     try {
-      await this.client.connect()
-      this.db = this.client.db(this.dbName)
+      await mongoose.connect(this.uri, {
+        dbName: this.dbName,
+        serverApi: { version: '1', strict: true, deprecationErrors: true }
+      })
       console.log(`Connected to the database: ${this.dbName}`)
     } catch (err) {
       console.error('Failed to connect to the database:', err)
-      throw new BadRequest('Database connection failed')
+      throw new InternalServerError('Database connection failed')
     }
   }
 
-  getDatabase(): Db {
-    if (!this.db) {
-      throw new BadRequest('Database is not connected')
+  getDatabase() {
+    if (mongoose.connection.readyState !== 1) {
+      throw new InternalServerError('Database is not connected')
     }
-    return this.db
+    return mongoose.connection.db
   }
 
   async close(): Promise<void> {
-    if (this.client) {
-      await this.client.close()
-      this.db = null
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect()
+      console.log('Disconnected from the database')
     }
   }
 }

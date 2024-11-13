@@ -16,3 +16,7 @@ export const PATH_APP = {
 
 export const LITMIT_COMMON_FILE_SIZE = 1024 * 1024 * 10 // 10MB
 export const ALLOW_FILE_TYPE = ['image/png', 'image/jpg', 'image/jpeg']
+
+export const DEFAULT_PAGE = 1
+
+export const DEFAULT_ITEM__PER_PAGE = 12

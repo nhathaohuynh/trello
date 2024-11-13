@@ -1,6 +1,6 @@
 import 'dotenv/config'
+import { DtoEnv } from '~//dtos/env.dto'
 import { nameStrateryValidation } from '~/http/routes/route-config-app'
-import { DtoEnv } from '~/interface/dtos/env.dto'
 import { validation } from '~/utils/validation.util'
 
 const envData = validation<DtoEnv>(nameStrateryValidation.ENV_STRATEGY, process.env)

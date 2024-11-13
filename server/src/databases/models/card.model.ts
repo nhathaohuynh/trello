@@ -1,25 +1,87 @@
-import Joi from 'joi'
-import { Document, ObjectId } from 'mongodb'
-import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/constant.util'
+import mongoose, { Document, Schema, Types } from 'mongoose'
+
+const DOCUMENT_NAME = 'card'
+const COLECTION_NAME = 'cards'
 
 export interface ICard extends Document {
-  _id?: ObjectId
-  boardId: ObjectId
-  columnId: ObjectId
+  _id: Types.ObjectId
+  boardId: Types.ObjectId
+  columnId: Types.ObjectId
   title: string
-  createdAt: Date
-  updatedAt: Date | null
+  cover?: string
+  memberIds: Types.ObjectId[]
+  comments: string[]
+  attachments: string[]
   _destroy: boolean
 }
 
-const CARD_COLLECTION_NAME = 'Cards'
-const CARD_COLLECTION_SCHEMA = Joi.object({
-  boardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-  columnId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-  title: Joi.string().required().min(3).max(50).trim().strict(),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now),
-  updatedAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false)
-})
+const Model: Schema = new Schema<ICard>(
+  {
+    boardId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      validate: {
+        validator: function (value: Types.ObjectId) {
+          return Types.ObjectId.isValid(value)
+        },
+        message: 'Invalid ObjectId for boardId'
+      },
+      ref: 'board'
+    },
+    columnId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      validate: {
+        validator: function (value: Types.ObjectId) {
+          return Types.ObjectId.isValid(value)
+        },
+        message: 'Invalid ObjectId for columnId'
+      },
+      ref: 'column'
+    },
+    title: {
+      type: String,
+      required: true,
+      minlength: 3,
+      maxlength: 256,
+      trim: true
+    },
 
-export { CARD_COLLECTION_NAME, CARD_COLLECTION_SCHEMA }
+    cover: {
+      type: String,
+      default: null
+    },
+
+    memberIds: {
+      type: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'user'
+        }
+      ],
+      default: []
+    },
+
+    comments: {
+      type: [String],
+      default: []
+    },
+
+    attachments: {
+      type: [String],
+      default: []
+    },
+
+    _destroy: {
+      type: Boolean,
+      default: false
+    }
+  },
+  {
+    timestamps: true, // Auto-manage `createdAt` and `updatedAt`
+    collection: COLECTION_NAME
+  }
+)
+
+const CardModel = mongoose.model<ICard>(DOCUMENT_NAME, Model)
+export default CardModel

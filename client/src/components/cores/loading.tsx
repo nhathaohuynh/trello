@@ -26,7 +26,7 @@ const Loading: React.FC<LoadingProps> = ({ message }) => {
 				}}
 			/>
 			{message && (
-				<Typography variant='h6' sx={{ mt: 2 }}>
+				<Typography variant='body1' sx={{ mt: 2 }}>
 					{message}
 				</Typography>
 			)}

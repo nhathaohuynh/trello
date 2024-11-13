@@ -1,13 +1,13 @@
 import { inject, injectable } from 'inversify'
-import { ICard } from '~/databases/models/card.model'
+import { DtoCreateCard, DtoUpdateCard } from '~/dtos/dtoCard'
 import { CardRepository } from '~/repositories/card.repository'
 import { NAME_SERVICE_INJECTION } from '~/utils/constant.util'
 import { BadRequest } from '~/utils/error-response.util'
+import { convertObjectId } from '~/utils/mongoose.util'
 import { ColumnService } from './column.service'
 
 const CONSTANT = {
   MSG_CREATE_CARD_FAILED: 'Failed to create card',
-  MSG_COLUMN_NOT_FOUND: 'column not found',
   MSG_CARD_NOT_FOUND: 'card not found',
   MGS_CARD_DELETE_FAILED: 'Failed to delete card',
   MSG_CREATE_UPDATE_FAILED: 'Failed to update card'
@@ -20,41 +20,35 @@ export class CardService {
     @inject(ColumnService) private readonly columnService: ColumnService
   ) {}
 
-  async createCard(body: ICard) {
-    const column = await this.columnService.findColumnById(body.columnId.toString())
+  async createCard(body: DtoCreateCard) {
+    const column = await this.columnService.findColumnById(body.columnId)
 
-    if (!column) {
-      throw new BadRequest(CONSTANT.MSG_COLUMN_NOT_FOUND)
-    }
-
-    const idCard = await this.cardRepository.create(body)
-    if (!idCard) {
+    const card = await this.cardRepository.create({
+      ...body,
+      columnId: convertObjectId(body.columnId),
+      boardId: column.boardId
+    })
+    if (!card) {
       throw new BadRequest(CONSTANT.MSG_CREATE_CARD_FAILED)
     }
-
-    const card = await this.cardRepository.findById(idCard)
 
     if (!card) {
       throw new BadRequest(CONSTANT.MSG_CARD_NOT_FOUND)
     }
 
-    await this.columnService.pushColumnIds(body.columnId.toString(), idCard.toString())
+    await this.columnService.pushCardIds(body.columnId, card._id.toString())
 
     return card
   }
 
-  async updateCard(cardId: string, body: Partial<ICard>) {
+  async updateCard(cardId: string, body: DtoUpdateCard) {
     const card = await this.cardRepository.findById(cardId)
 
     if (!card) {
       throw new BadRequest(CONSTANT.MSG_CARD_NOT_FOUND)
     }
 
-    const res = await this.cardRepository.findByIdAndUpdate(
-      cardId,
-      { $set: { ...body, updatedAt: Date.now() } },
-      { returnDocument: 'after' }
-    )
+    const res = await this.cardRepository.findByIdAndUpdate(cardId, { $set: { ...body } })
 
     if (!res) {
       throw new BadRequest(CONSTANT.MSG_CREATE_UPDATE_FAILED)
@@ -70,14 +64,24 @@ export class CardService {
       throw new BadRequest(CONSTANT.MSG_CARD_NOT_FOUND)
     }
 
-    const res = await this.cardRepository.findByIdAndUpdate(
-      cardId,
-      { $set: { _destroy: true } },
-      { returnDocument: 'after' }
-    )
+    await this.columnService.pullCardIds(card.columnId.toString(), cardId)
+
+    const res = await this.cardRepository.findByIdAndUpdate(cardId, { $set: { _destroy: true } })
 
     if (!res) {
       throw new BadRequest(CONSTANT.MGS_CARD_DELETE_FAILED)
+    }
+
+    return {
+      _id: cardId
+    }
+  }
+
+  async findCardById(cardId: string) {
+    const card = await this.cardRepository.findById(cardId)
+
+    if (!card || card._destroy) {
+      throw new BadRequest(CONSTANT.MSG_CARD_NOT_FOUND)
     }
 
     return card

@@ -6,13 +6,13 @@ export type IRoute = {
   child?: Record<string, IRoute>
 }
 
-export enum BoardType {
-  PUBLIC = 'public',
-  PRIVATE = 'private'
-}
-
 export type EmailOptions = {
   email: string
   subject: string
   html: string
+}
+
+export type Pagination = {
+  page?: number
+  itemPerPage?: number
 }

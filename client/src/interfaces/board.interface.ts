@@ -31,6 +31,7 @@ export interface IBoard {
 	_id: string
 	title: string
 	description: string
+	cover?: string
 	type: 'public' | 'private'
 	ownerIds: string[]
 	memberIds: string[]
@@ -38,7 +39,7 @@ export interface IBoard {
 	columns: IColumn[]
 }
 
-export type ICreateColumn = Pick<IColumn, 'title' | 'boardId' | 'description'>
+export type ICreateColumn = Pick<IColumn, 'title' | 'boardId'>
 
 export type ICreateCard = Pick<ICard, 'title' | 'columnId' | 'boardId'>
 

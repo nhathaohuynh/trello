@@ -67,8 +67,6 @@ const BoardContent = ({
 		},
 	})
 
-	console.log('rerender')
-
 	const sensors = useSensors(mouseSensor, touchSensor)
 	const [orderedColumns, setOrderedColumns] = useState<IColumn[]>([])
 	const [activeDragItemType, setActiveDragItemType] = useState<string | null>(
@@ -94,7 +92,7 @@ const BoardContent = ({
 	const board = useSelector(selectActiveBoard)
 
 	useEffect(() => {
-		setOrderedColumns(board.columns)
+		setOrderedColumns(board?.columns)
 	}, [board])
 
 	const findColumnByCardId = (id: string) => {
@@ -385,7 +383,7 @@ const BoardContent = ({
 						<CardItem card={activeDragItemData as ICard} />
 					)}
 				</DragOverlay>
-				<Columns columns={orderedColumns} />
+				<Columns columns={orderedColumns} loading={!board?.columns} />
 			</Box>
 		</DndContext>
 	)

@@ -1,7 +1,7 @@
 import { plainToClass } from 'class-transformer'
 import { validate } from 'class-validator'
 import { NextFunction, Request, Response } from 'express'
-import dtoRegistry from '~/interface/dtos/dtoRegistration'
+import dtoRegistry from '~//dtos/dtoRegistration'
 import { BadRequest } from '~/utils/error-response.util'
 
 interface IParamsValidation {

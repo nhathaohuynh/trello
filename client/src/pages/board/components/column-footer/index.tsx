@@ -148,6 +148,7 @@ const FooterColumn = ({ columnId }: props) => {
 							fontSize: '10px',
 							bgcolor: 'error.main',
 						}}
+						className='interceptor-loading'
 						onClick={() => {
 							setIsToggleCardForm(false)
 						}}
@@ -157,6 +158,7 @@ const FooterColumn = ({ columnId }: props) => {
 				</Box>
 			) : (
 				<Button
+					className='interceptor-loading'
 					sx={{
 						color: '#ffffff',
 						fontWeight: 400,
