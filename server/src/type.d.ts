@@ -5,6 +5,11 @@ declare global {
   namespace Express {
     interface Request {
       userId: string
+      locals: {
+        requestID: string
+        userId: string
+        ipAddress: string
+      }
     }
   }
 }

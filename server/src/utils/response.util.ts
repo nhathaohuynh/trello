@@ -1,6 +1,7 @@
 import { ClassConstructor } from 'class-transformer'
-import { Response } from 'express'
+import { Request, Response } from 'express'
 import { cookieOptions } from '~/config/cookie.config'
+import logger from '~/config/winton.config'
 import { transformExpose } from './transform-expose.util'
 
 export class ErrorResponseBase extends Error {
@@ -19,7 +20,21 @@ export class SuccessResponseBase<T> {
     public data: Partial<T>
   ) {}
 
-  send(res: Response) {
+  private logSuccess(req: Request) {
+    logger.log(this.message, {
+      context: 'Success Response',
+      requestID: req.locals.requestID,
+      ipAddress: req.locals.ipAddress,
+      userId: req.userId,
+      statusCode: this.statusCode,
+      metaData: this.data,
+      pathURL: req.originalUrl,
+      body: req.body
+    })
+  }
+
+  send(req: Request, res: Response) {
+    this.logSuccess(req)
     res.status(this.statusCode).json(this)
   }
 

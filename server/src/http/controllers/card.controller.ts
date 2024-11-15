@@ -17,25 +17,25 @@ export class CardController {
     if (req.file) {
       const cover = await uploadImageService.streamUpload(req.file.buffer, env.CLOUDINARY_FOLDER)
       const data = await this.cardService.createCard({ ...req.body, cover: cover.secure_url })
-      return new CreatedResponse(data, CONSTANT.MSG_CREATE_COLUMN_SUCCESS).send(res)
+      return new CreatedResponse(data, CONSTANT.MSG_CREATE_COLUMN_SUCCESS).send(req, res)
     }
     const data = await this.cardService.createCard(req.body)
-    return new CreatedResponse(data, CONSTANT.MSG_CREATE_COLUMN_SUCCESS).send(res)
+    return new CreatedResponse(data, CONSTANT.MSG_CREATE_COLUMN_SUCCESS).send(req, res)
   }
 
   async deleteCard(req: Request, res: Response) {
     const data = await this.cardService.deleteCard(req.params.id)
-    return new CreatedResponse(data).send(res)
+    return new CreatedResponse(data).send(req, res)
   }
 
   async updateCard(req: Request, res: Response) {
     if (req.file) {
       const cover = await uploadImageService.streamUpload(req.file.buffer, env.CLOUDINARY_FOLDER)
       const data = await this.cardService.updateCard(req.params.id, { ...req.body, cover: cover.secure_url })
-      return new CreatedResponse(data).send(res)
+      return new CreatedResponse(data).send(req, res)
     }
 
     const data = await this.cardService.updateCard(req.params.id, req.body)
-    return new CreatedResponse(data).send(res)
+    return new CreatedResponse(data).send(req, res)
   }
 }

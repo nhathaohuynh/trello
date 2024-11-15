@@ -17,11 +17,11 @@ export class BoardController {
     if (req.file) {
       const cover = await uploadImageService.streamUpload(req.file.buffer, env.CLOUDINARY_FOLDER)
       const data = await this.boardService.createBoard(req.userId, { ...req.body, cover: cover.secure_url })
-      return new CreatedResponse(data, CONSTANT.MSG_CREATE_BOARD_SUCCESS).send(res)
+      return new CreatedResponse(data, CONSTANT.MSG_CREATE_BOARD_SUCCESS).send(req, res)
     }
 
     const data = await this.boardService.createBoard(req.userId, req.body)
-    return new CreatedResponse(data, CONSTANT.MSG_CREATE_BOARD_SUCCESS).send(res)
+    return new CreatedResponse(data, CONSTANT.MSG_CREATE_BOARD_SUCCESS).send(req, res)
   }
 
   async getListBoard(req: Request, res: Response) {
@@ -30,24 +30,24 @@ export class BoardController {
       page: parseInt(page as string, 10),
       itemPerPage: parseInt(itemPerPage as string, 10)
     })
-    return new OKResponse(data).send(res)
+    return new OKResponse(data).send(req, res)
   }
 
   async getDetailBoard(req: Request, res: Response) {
     const boardId = req.params.id
     const data = await this.boardService.getDetailBoard(req.userId, boardId)
-    return new OKResponse(data).send(res)
+    return new OKResponse(data).send(req, res)
   }
 
   async updateBoard(req: Request, res: Response) {
     const boardId = req.params.id
     const data = await this.boardService.updateBoardById(boardId, req.body)
-    return new OKResponse(data._id).send(res)
+    return new OKResponse(data._id).send(req, res)
   }
 
   async deleteBoard(req: Request, res: Response) {
     const boardId = req.params.id
     const data = await this.boardService.deleteBoardById(boardId)
-    return new OKResponse(data).send(res)
+    return new OKResponse(data).send(req, res)
   }
 }

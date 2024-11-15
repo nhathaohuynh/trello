@@ -13,7 +13,7 @@ export class InvitationController {
 
   async createInvitation(req: Request, res: Response) {
     const data = await this.invitationService.createInvitation(req.userId, req.body)
-    return new CreatedResponse(data, CONSTANT.MSG_CREATE_SUCCESS).send(res)
+    return new CreatedResponse(data, CONSTANT.MSG_CREATE_SUCCESS).send(req, res)
   }
 
   // async updateComment(req: Request, res: Response) {

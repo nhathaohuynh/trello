@@ -1,4 +1,5 @@
 import express from 'express'
+import { loggerRequest } from '../middlewares/logger'
 import { RouteBoard } from './board.route'
 import { RouteCard } from './card.route'
 import { RouteColumn } from './column.route'
@@ -7,6 +8,8 @@ import { RouteInvitation } from './invitation.route'
 import { ROUTE_APP } from './route-config-app'
 import { RouteUser } from './user.route'
 const router = express.Router()
+
+router.use(loggerRequest)
 
 // Board API
 router.use(ROUTE_APP.boards.path, RouteBoard)

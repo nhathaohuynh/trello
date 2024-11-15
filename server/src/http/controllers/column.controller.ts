@@ -13,22 +13,22 @@ export class ColumnController {
 
   async createColumn(req: Request, res: Response) {
     const data = await this.columnService.createColumn(req.body)
-    return new CreatedResponse(data, CONSTANT.MSG_CREATE_COLUMN_SUCCESS).send(res)
+    return new CreatedResponse(data, CONSTANT.MSG_CREATE_COLUMN_SUCCESS).send(req, res)
   }
 
   async updateColumn(req: Request, res: Response) {
     const data = await this.columnService.updateColumnById(req.params.id, req.body)
-    return new OKResponse(data).send(res)
+    return new OKResponse(data).send(req, res)
   }
 
   async deleteColumn(req: Request, res: Response) {
     const data = await this.columnService.deleteColumnById(req.params.id)
-    return new OKResponse(data).send(res)
+    return new OKResponse(data).send(req, res)
   }
 
   async moveCardBetweenColumns(req: Request, res: Response) {
     console.log(req.body)
     const data = await this.columnService.moveCardBetweenColumns(req.body)
-    return new OKResponse(data).send(res)
+    return new OKResponse(data).send(req, res)
   }
 }
