@@ -1,8 +1,9 @@
 import mongoose, { Document, ObjectId, Schema } from 'mongoose'
 import { DEFAULT_AVATAR, ROLE } from '~/utils/constant.util'
 
-const DOCUMENT_NAME = 'user'
-const COLECTION_NAME = 'users'
+export const USER_COLLECTION = 'users'
+export const USER_DOCUMENT_NAME = 'user'
+export const USER_NOT_EXPOSE_FIELDS = ['password', 'verifyToken']
 
 export interface IUser extends Document {
   _id: ObjectId
@@ -85,9 +86,9 @@ const UserSchema: Schema = new Schema<IUser>(
   },
   {
     timestamps: true,
-    collection: COLECTION_NAME
+    collection: USER_COLLECTION
   }
 )
 
-const UserModel = mongoose.model<IUser>(DOCUMENT_NAME, UserSchema)
+const UserModel = mongoose.model<IUser>(USER_DOCUMENT_NAME, UserSchema)
 export default UserModel

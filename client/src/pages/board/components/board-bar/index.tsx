@@ -155,7 +155,7 @@ const BoardBar = () => {
 						New column
 					</Button>
 
-					<InviteBoardUser />
+					<InviteBoardUser boardId={activeBoard?._id} />
 
 					<Button
 						startIcon={<Message />}

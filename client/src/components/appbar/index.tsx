@@ -1,4 +1,3 @@
-import { NotificationsNone } from '@mui/icons-material'
 import AppsIcon from '@mui/icons-material/Apps'
 import Close from '@mui/icons-material/Close'
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined'
@@ -14,11 +13,11 @@ import {
 	Typography,
 	useColorScheme,
 } from '@mui/material'
-import Badge from '@mui/material/Badge'
 import Box from '@mui/material/Box'
 import { useNavigate } from 'react-router-dom'
 import { PATH_APP } from '~/utils/constants'
 import SelectItem from '../cores/select'
+import Notifications from './menu/notification'
 import Profile from './menu/profile'
 import Recent from './menu/recent'
 import Started from './menu/started'
@@ -144,11 +143,7 @@ function Appbar() {
 					onChange={handleOnChnage}
 				/>
 
-				<Tooltip title='Notifications'>
-					<Badge color='secondary' variant='dot' sx={{ cursor: 'pointer' }}>
-						<NotificationsNone sx={{ color: 'white' }} />
-					</Badge>
-				</Tooltip>
+				<Notifications />
 
 				<Tooltip title='Help'>
 					<HelpOutline sx={{ cursor: 'pointer', color: 'white' }} />

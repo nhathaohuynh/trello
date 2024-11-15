@@ -152,6 +152,32 @@ export const ROUTE_APP = {
         method: 'DELETE'
       }
     }
+  },
+
+  invitations: {
+    path: '/invitations',
+    child: {
+      create: {
+        path: '',
+        method: 'POST'
+      },
+      getList: {
+        path: '',
+        method: 'GET'
+      },
+      getById: {
+        path: '/:id',
+        method: 'GET'
+      },
+      update: {
+        path: '/:id',
+        method: 'PUT'
+      },
+      delete: {
+        path: '/:id',
+        method: 'DELETE'
+      }
+    }
   }
 }
 
@@ -174,5 +200,13 @@ export const nameStrateryValidation = {
   VERIFY_TOKEN: `${API_PREFIX}${ROUTE_APP.users.path}${ROUTE_APP.users.child.verify.path}:${ROUTE_APP.users.child.verify.method}`,
   UPDATE_PASSWORD: `${API_PREFIX}${ROUTE_APP.users.path}${ROUTE_APP.users.child.updatePassword.path}:${ROUTE_APP.users.child.updatePassword.method}`,
   UPDATE_INFORMATION: `${API_PREFIX}${ROUTE_APP.users.path}${ROUTE_APP.users.child.updateInformation.path}:${ROUTE_APP.users.child.updateInformation.method}`,
-  FORGOT_PASSWORD: `${API_PREFIX}${ROUTE_APP.users.path}${ROUTE_APP.users.child.forgotPassword.path}:${ROUTE_APP.users.child.forgotPassword.method}`
+  FORGOT_PASSWORD: `${API_PREFIX}${ROUTE_APP.users.path}${ROUTE_APP.users.child.forgotPassword.path}:${ROUTE_APP.users.child.forgotPassword.method}`,
+  CREATE_COMMENT: `${API_PREFIX}${ROUTE_APP.comments.path}${ROUTE_APP.comments.child.create.path}:${ROUTE_APP.comments.child.create.method}`,
+  GET_LIST_COMMENT: `${API_PREFIX}${ROUTE_APP.comments.path}${ROUTE_APP.comments.child.getList.path}:${ROUTE_APP.comments.child.getList.method}`,
+  DELETE_COMMENT: `${API_PREFIX}${ROUTE_APP.comments.path}${ROUTE_APP.comments.child.delete.path}:${ROUTE_APP.comments.child.delete.method}`,
+  UPDATE_COMMENT: `${API_PREFIX}${ROUTE_APP.comments.path}${ROUTE_APP.comments.child.update.path}:${ROUTE_APP.comments.child.update.method}`,
+  CREATE_INVITATION: `${API_PREFIX}${ROUTE_APP.invitations.path}${ROUTE_APP.invitations.child.create.path}:${ROUTE_APP.invitations.child.create.method}`,
+  GET_LIST_INVITATION: `${API_PREFIX}${ROUTE_APP.invitations.path}${ROUTE_APP.invitations.child.getList.path}:${ROUTE_APP.invitations.child.getList.method}`,
+  DELETE_INVITATION: `${API_PREFIX}${ROUTE_APP.invitations.path}${ROUTE_APP.invitations.child.delete.path}:${ROUTE_APP.invitations.child.delete.method}`,
+  UPDATE_INVITATION: `${API_PREFIX}${ROUTE_APP.invitations.path}${ROUTE_APP.invitations.child.update.path}:${ROUTE_APP.invitations.child.update.method}`
 }

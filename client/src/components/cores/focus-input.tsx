@@ -40,7 +40,6 @@ function ToggleFocusInput({
 			fullWidth
 			variant='outlined'
 			size='small'
-			data-no-dnd='true'
 			value={inputValue}
 			onChange={(event) => {
 				setInputValue(event.target.value)

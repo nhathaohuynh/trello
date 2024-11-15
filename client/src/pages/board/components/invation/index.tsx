@@ -7,13 +7,18 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
+import { createInvitationAPI } from '~/apis/invitation.api'
 import FieldErrorAlert from '~/components/cores/field-alert'
 
 interface InviteBoardUserFormData {
 	inviteeEmail: string
 }
 
-const InviteBoardUser = () => {
+interface InviteBoardUserProps {
+	boardId: string
+}
+
+const InviteBoardUser = ({ boardId }: InviteBoardUserProps) => {
 	// State for Popover anchor element
 	const [anchorPopoverElement, setAnchorPopoverElement] =
 		useState<HTMLElement | null>(null)
@@ -39,10 +44,12 @@ const InviteBoardUser = () => {
 	const submitInviteUserToBoard: SubmitHandler<InviteBoardUserFormData> = (
 		data,
 	) => {
-		const { inviteeEmail } = data
-		console.log('inviteeEmail:', inviteeEmail)
+		const invitationData = {
+			inviteeEmail: data.inviteeEmail,
+			boardId,
+		}
 
-		// Clear the input field after submitting the form
+		createInvitationAPI(invitationData)
 		setValue('inviteeEmail', '')
 		setAnchorPopoverElement(null)
 	}
