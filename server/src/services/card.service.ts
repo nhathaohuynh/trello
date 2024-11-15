@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify'
 import { DtoCreateCard, DtoUpdateCard } from '~/dtos/dtoCard'
 import { CardRepository } from '~/repositories/card.repository'
+import { CommentRepository } from '~/repositories/comment.repository'
 import { NAME_SERVICE_INJECTION } from '~/utils/constant.util'
 import { BadRequest } from '~/utils/error-response.util'
 import { convertObjectId } from '~/utils/mongoose.util'
@@ -17,6 +18,7 @@ const CONSTANT = {
 export class CardService {
   constructor(
     @inject(NAME_SERVICE_INJECTION.CARD_REPOSITORY) private readonly cardRepository: CardRepository,
+    @inject(NAME_SERVICE_INJECTION.COMMENT_REPOSITORY) private readonly commentRepository: CommentRepository,
     @inject(ColumnService) private readonly columnService: ColumnService
   ) {}
 
@@ -64,7 +66,10 @@ export class CardService {
       throw new BadRequest(CONSTANT.MSG_CARD_NOT_FOUND)
     }
 
-    await this.columnService.pullCardIds(card.columnId.toString(), cardId)
+    await Promise.all([
+      this.columnService.pullCardIds(card.columnId.toString(), cardId),
+      this.commentRepository.deleteByCardId(cardId)
+    ])
 
     const res = await this.cardRepository.findByIdAndUpdate(cardId, { $set: { _destroy: true } })
 
@@ -85,5 +90,17 @@ export class CardService {
     }
 
     return card
+  }
+
+  async pushCommentIds(cardId: string, commentId: string) {
+    const res = await this.cardRepository.findByIdAndUpdate(cardId, {
+      $push: { commentIds: convertObjectId(commentId) }
+    })
+
+    if (!res) {
+      throw new BadRequest(CONSTANT.MSG_CREATE_CARD_FAILED)
+    }
+
+    return res
   }
 }

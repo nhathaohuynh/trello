@@ -27,13 +27,34 @@ export class BoardRepository extends BaseRepository<IBoard> {
           }
         ]
       })
-      .populate({
-        path: 'columns',
-        populate: {
-          path: 'cards',
-          model: 'card'
+      .populate([
+        {
+          path: 'columns',
+          populate: {
+            path: 'cards',
+            model: 'card',
+            populate: {
+              path: 'comments',
+              model: 'comment',
+              populate: {
+                path: 'user',
+                model: 'user',
+                select: '-password -verifyToken'
+              }
+            }
+          }
+        },
+        {
+          path: 'ownerIds',
+          select: '-password -verifyToken',
+          model: 'user'
+        },
+        {
+          path: 'memberIds',
+          select: '-password -verifyToken',
+          model: 'user'
         }
-      })
+      ])
   }
 
   getListBoardByUserId(userId: string, skip: number, litmit: number) {

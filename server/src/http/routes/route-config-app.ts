@@ -126,6 +126,32 @@ export const ROUTE_APP = {
         method: 'DELETE'
       }
     }
+  },
+
+  comments: {
+    path: '/comments',
+    child: {
+      create: {
+        path: '',
+        method: 'POST'
+      },
+      getList: {
+        path: '',
+        method: 'GET'
+      },
+      getById: {
+        path: '/:id',
+        method: 'GET'
+      },
+      update: {
+        path: '/:id',
+        method: 'PUT'
+      },
+      delete: {
+        path: '/:id',
+        method: 'DELETE'
+      }
+    }
   }
 }
 

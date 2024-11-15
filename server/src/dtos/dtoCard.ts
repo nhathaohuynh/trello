@@ -22,8 +22,12 @@ export class DtoUpdateCard {
   @IsNotEmpty()
   @IsOptional()
   @MinLength(5)
-  @MaxLength(50)
+  @MaxLength(256)
   title: string
+
+  @IsString()
+  @IsOptional()
+  description: string
 
   @IsArray()
   @IsNotEmpty()

@@ -18,7 +18,8 @@ export const NAME_SERVICE_INJECTION = {
   BOARD_REPOSITORY: 'BoardRepository',
   CARD_REPOSITORY: 'CardRepository',
   COLUMN_REPOSITORY: 'ColumnRepository',
-  USER_REPOSITORY: 'UserRepository'
+  USER_REPOSITORY: 'UserRepository',
+  COMMENT_REPOSITORY: 'CommentRepository'
 }
 
 export const TEMPLATE_EMAIL_VERIFY_EMAIL = `<!DOCTYPE html>

@@ -3,19 +3,23 @@ import 'reflect-metadata'
 import { IBoard } from '~/databases/models/board.model'
 import { ICard } from '~/databases/models/card.model'
 import { IColumn } from '~/databases/models/column.model'
+import { IComment } from '~/databases/models/comment'
 import { IUser } from '~/databases/models/user.model'
 import { BoardController } from '~/http/controllers/board.controller'
 import { CardController } from '~/http/controllers/card.controller'
 import { ColumnController } from '~/http/controllers/column.controller'
+import { CommentController } from '~/http/controllers/comment.controller'
 import { UserController } from '~/http/controllers/user.controller'
-import { IRepository } from '~/interface/base/IRepository.base'
+import { IRepository } from '~/interface/IRepository'
 import { BoardRepository } from '~/repositories/board.repository'
 import { CardRepository } from '~/repositories/card.repository'
 import { ColumnRepository } from '~/repositories/column.repository'
+import { CommentRepository } from '~/repositories/comment.repository'
 import { UserRepository } from '~/repositories/user.repository'
 import { BoardService } from '~/services/board.service'
 import { CardService } from '~/services/card.service'
 import { ColumnService } from '~/services/column.service'
+import { CommentService } from '~/services/comment.service'
 import { UserService } from '~/services/user.service'
 import { NAME_SERVICE_INJECTION } from '~/utils/constant.util'
 
@@ -36,5 +40,9 @@ container.bind(CardController).to(CardController)
 container.bind<IRepository<IUser>>(NAME_SERVICE_INJECTION.USER_REPOSITORY).to(UserRepository)
 container.bind(UserService).to(UserService)
 container.bind(UserController).to(UserController)
+
+container.bind<IRepository<IComment>>(NAME_SERVICE_INJECTION.COMMENT_REPOSITORY).to(CommentRepository)
+container.bind(CommentService).to(CommentService)
+container.bind(CommentController).to(CommentController)
 
 export { container }

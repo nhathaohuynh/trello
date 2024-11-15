@@ -8,9 +8,10 @@ export interface ICard extends Document {
   boardId: Types.ObjectId
   columnId: Types.ObjectId
   title: string
+  description?: string
   cover?: string
   memberIds: Types.ObjectId[]
-  comments: string[]
+  comments: Schema.Types.ObjectId[]
   attachments: string[]
   _destroy: boolean
 }
@@ -43,8 +44,12 @@ const Model: Schema = new Schema<ICard>(
       type: String,
       required: true,
       minlength: 3,
-      maxlength: 256,
       trim: true
+    },
+
+    description: {
+      type: String,
+      default: null
     },
 
     cover: {
@@ -63,8 +68,9 @@ const Model: Schema = new Schema<ICard>(
     },
 
     comments: {
-      type: [String],
-      default: []
+      type: [Schema.Types.ObjectId],
+      default: [],
+      ref: 'comment'
     },
 
     attachments: {

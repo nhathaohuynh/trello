@@ -46,6 +46,8 @@ export class BoardService {
       $set: {
         ...body,
         slug: slugify(body?.title ? body.title : board.title),
+        memberIds: body?.memberIds?.length > 0 ? body.memberIds.map((id) => convertObjectId(id)) : board.memberIds,
+        ownerIds: body?.ownerIds?.length > 0 ? body.ownerIds.map((id) => convertObjectId(id)) : board.ownerIds,
         columnOrderIds:
           body?.columnOrderIds?.length > 0 ? body.columnOrderIds.map((id) => convertObjectId(id)) : board.columnOrderIds
       }
@@ -54,7 +56,9 @@ export class BoardService {
       throw new BadRequest(CONSTANT.MSG_UPDATE_BOARD_FAILED)
     }
 
-    return res
+    return {
+      _id: res
+    }
   }
 
   async pushColumnIds(boardId: string, columnId: string) {
