@@ -25,12 +25,13 @@ export const generatePlaceholderCard = (column: IColumn) => {
 	return {
 		_id: `${column._id}-placeholder-card`,
 		boardId: column.boardId,
+		description: '',
 		columnId: column._id,
 		FE_PLACEHOLDER: true,
 		title: '',
-		description: null,
 		cover: null,
 		memberIds: [],
+		ownerIds: [],
 		comments: [],
 		attachments: [],
 	}

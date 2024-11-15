@@ -1,4 +1,3 @@
-import { Update } from '@mui/icons-material'
 import AddCard from '@mui/icons-material/AddCard'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import ContentCut from '@mui/icons-material/ContentCut'
@@ -174,7 +173,11 @@ const HeaderColumn = ({ title, columnId }: props) => {
 				borderTopRightRadius: '6px',
 			}}
 		>
-			<ToggleFocusInput value={title} onChangedValue={onUpdateColumnTitle} />
+			<ToggleFocusInput
+				value={title}
+				onChangedValue={onUpdateColumnTitle}
+				color={(theme) => (theme.palette.mode === 'dark' ? 'white' : 'white')}
+			/>
 
 			<Box>
 				<Tooltip title='More options'>

@@ -10,11 +10,14 @@ import {
 } from '~/apis/board.api'
 import Appbar from '~/components/appbar'
 import { IColumn } from '~/interfaces/board.interface'
+import ActiveCard from '~/pages/board/components/active-card/ActiveCard'
 import {
 	getBoardsDetail,
 	selectActiveBoard,
 	setActiveBoard,
+	setEmptyActiveBoard,
 } from '~/redux/board/board.slice'
+import { selectActiveCard } from '~/redux/card/active-card.slice'
 import { useAppDispatch } from '~/redux/store'
 import { generatePlaceholderCard } from '~/utils/formatter'
 import BoardBar from './components/board-bar'
@@ -25,9 +28,14 @@ function Board() {
 	const { boardId } = useParams()
 	const dispatch = useAppDispatch()
 	const activeBoard = useSelector(selectActiveBoard)
+	const activeCard = useSelector(selectActiveCard)
 
 	useEffect(() => {
 		dispatch(getBoardsDetail(boardId as string))
+
+		return () => {
+			dispatch(setEmptyActiveBoard())
+		}
 	}, [])
 
 	const handleOrderColumnIds = (orderColumnIds: string[]) => {
@@ -121,6 +129,7 @@ function Board() {
 			maxWidth={false}
 			sx={{ height: '100vh', maxHeight: '100vh' }}
 		>
+			{activeCard && <ActiveCard />}
 			<Appbar />
 			<BoardBar />
 			<BoardContent

@@ -10,7 +10,7 @@ const initialActiveBoard: { currentBoard: IBoard | null } = {
 }
 
 const PREFIX_NAME_THUNK = {
-	GET_BOARD_DETAIL: 'boards/getBoards',
+	GET_BOARD_DETAIL: 'board/getBoards',
 }
 
 export const getBoardsDetail = createAsyncThunk<IBoard, string>(
@@ -42,6 +42,9 @@ const boardSlice = createSlice({
 
 			state.currentBoard = board
 		},
+		setEmptyActiveBoard: (state) => {
+			state.currentBoard = null
+		},
 	},
 
 	extraReducers: (builder) => {
@@ -71,5 +74,5 @@ const boardSlice = createSlice({
 export const selectActiveBoard = (state: RootState) =>
 	state.boardReducer.currentBoard!
 
-export const { setActiveBoard } = boardSlice.actions
+export const { setActiveBoard, setEmptyActiveBoard } = boardSlice.actions
 export const BoardReducer = boardSlice.reducer

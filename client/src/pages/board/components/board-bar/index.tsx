@@ -4,7 +4,6 @@ import Dashboard from '@mui/icons-material/Dashboard'
 import FilterList from '@mui/icons-material/FilterList'
 import Message from '@mui/icons-material/Message'
 import NoteAdd from '@mui/icons-material/NoteAdd'
-import PersonAdd from '@mui/icons-material/PersonAdd'
 import VpnLock from '@mui/icons-material/VpnLock'
 import { capitalize, Stack } from '@mui/material'
 import Box from '@mui/material/Box'
@@ -19,6 +18,7 @@ import { selectActiveBoard, setActiveBoard } from '~/redux/board/board.slice'
 import { useAppDispatch } from '~/redux/store'
 import { generatePlaceholderCard } from '~/utils/formatter'
 import NewColumnModal from '../create-column'
+import InviteBoardUser from '../invation'
 import BoardUserGroup from '../user-group/user-group'
 
 const MENU_STYLE = {
@@ -37,7 +37,6 @@ const MENU_STYLE = {
 
 const BoardBar = () => {
 	const board = useSelector(selectActiveBoard)
-
 	const [isModalOpen, setModalOpen] = useState(false)
 
 	const handleOpenModal = () => {
@@ -50,6 +49,7 @@ const BoardBar = () => {
 
 	const { boardId } = useParams()
 	const activeBoard = useSelector(selectActiveBoard)
+	const boardUsers = activeBoard?.ownerIds.concat(activeBoard?.memberIds)
 	const dispatch = useAppDispatch()
 
 	const handleAddColumn = async ({ title }: { title: string }) => {
@@ -155,24 +155,7 @@ const BoardBar = () => {
 						New column
 					</Button>
 
-					<Button
-						startIcon={<PersonAdd />}
-						variant='outlined'
-						sx={{
-							ml: 2,
-							px: 2,
-							py: 0.8,
-							width: 'fit-content',
-							color: 'primary.main',
-							fontSize: '12px',
-							fontWeight: 500,
-							bgcolor: (theme) =>
-								theme.palette.mode === 'dark' ? '#FFFFFF29' : '#00000014',
-							border: 'none',
-						}}
-					>
-						Invite
-					</Button>
+					<InviteBoardUser />
 
 					<Button
 						startIcon={<Message />}
@@ -193,7 +176,7 @@ const BoardBar = () => {
 						Message
 					</Button>
 				</Stack>
-				<BoardUserGroup />
+				<BoardUserGroup boardUsers={boardUsers} />
 			</Box>
 
 			{isModalOpen && (

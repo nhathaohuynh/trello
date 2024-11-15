@@ -8,12 +8,14 @@ interface ToggleFocusInputProps {
 	value: string
 	onChangedValue: (value: string) => void
 	inputFontSize?: string
+	color: (theme: any) => 'white' | 'black'
 }
 
 function ToggleFocusInput({
 	value,
 	onChangedValue,
 	inputFontSize = '14px',
+	color,
 	...props
 }: ToggleFocusInputProps) {
 	const [inputValue, setInputValue] = useState(value)
@@ -46,11 +48,10 @@ function ToggleFocusInput({
 			onBlur={triggerBlur}
 			{...props}
 			sx={{
-				'& label': {},
 				'& input': {
 					fontSize: inputFontSize,
 					fontWeight: '500',
-					color: 'white',
+					color: color,
 				},
 				'& .MuiOutlinedInput-root': {
 					backgroundColor: 'transparent',

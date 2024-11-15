@@ -2,7 +2,9 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import Attachment from '@mui/icons-material/Attachment'
 import Comment from '@mui/icons-material/Comment'
+import Delete from '@mui/icons-material/Delete'
 import Group from '@mui/icons-material/Group'
+import Update from '@mui/icons-material/Update'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardActions from '@mui/material/CardActions'
@@ -10,14 +12,13 @@ import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import { useConfirm } from 'material-ui-confirm'
-import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
-import { deleteCardAPI, updateCardAPI } from '~/apis/board.api'
+import { deleteCardAPI } from '~/apis/board.api'
 import { ICard } from '~/interfaces/board.interface'
 import { selectActiveBoard, setActiveBoard } from '~/redux/board/board.slice'
+import { updateActiveCard } from '~/redux/card/active-card.slice'
 import { useAppDispatch } from '~/redux/store'
-import CardModal from '../card-modal'
 
 interface props {
 	card: ICard
@@ -40,47 +41,7 @@ function CardItem({ card }: props) {
 	}
 	const board = useSelector(selectActiveBoard)
 	const dispatch = useAppDispatch()
-	const [isModalOpen, setModalOpen] = useState(false)
 	const confirm = useConfirm()
-
-	const handleOpenModal = () => {
-		setModalOpen(true)
-	}
-
-	const handleCloseModal = () => {
-		setModalOpen(false)
-	}
-
-	const handleUpdateCard = (data: { title: string; coverImage?: File }) => {
-		const formData = new FormData()
-
-		if (data.coverImage) {
-			formData.append('cover', data.coverImage)
-		}
-		formData.append('title', data.title)
-		toast
-			.promise(updateCardAPI(card._id, formData), {
-				pending: 'Updating card...',
-				success: 'Card updated successfully!',
-			})
-			.then((data) => {
-				const boardClone = structuredClone(board)
-				const column = boardClone.columns.find(
-					(col) => col._id === data.columnId,
-				)
-
-				if (column) {
-					const cardIndex = column.cards.findIndex(
-						(card) => card._id === data._id,
-					)
-					column.cards[cardIndex] = data
-				}
-
-				dispatch(setActiveBoard(boardClone))
-			})
-
-		handleCloseModal()
-	}
 
 	const handleDeleteCard = () => {
 		confirm({
@@ -174,39 +135,37 @@ function CardItem({ card }: props) {
 							}}
 							size='small'
 							className='interceptor-loading'
-							onClick={handleOpenModal}
+							onClick={() => dispatch(updateActiveCard(card))}
 						>
-							Update
+							<Update
+								sx={{
+									fontSize: '1rem',
+									color: 'white',
+								}}
+							/>
 						</Button>
 
 						<Button
 							size='small'
+							variant='outlined'
 							sx={{
-								color: '#ffffff',
 								fontWeight: 400,
 								fontSize: '10px',
 								bgcolor: 'error.main',
+								border: 'none',
 							}}
 							onClick={handleDeleteCard}
 						>
-							Remove
+							<Delete
+								sx={{
+									fontSize: '1rem',
+									color: 'white',
+								}}
+							/>
 						</Button>
 					</CardActions>
 				)}
 			</Card>
-
-			{isModalOpen && (
-				<CardModal
-					onClose={handleCloseModal}
-					open={isModalOpen}
-					onSubmitData={handleUpdateCard}
-					isUpdate={true}
-					cardData={{
-						title: card?.title,
-						coverImage: typeof card?.cover === 'string' ? card.cover : '',
-					}}
-				/>
-			)}
 		</>
 	)
 }

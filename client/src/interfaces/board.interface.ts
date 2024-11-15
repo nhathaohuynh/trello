@@ -1,19 +1,20 @@
+import { IComment } from './comment.interface'
+import { IUser } from './user.interface'
+
 export interface IAttachment {
 	attachment: string
-}
-
-export interface IComment {
-	comment: string
 }
 
 export interface ICard {
 	_id: string
 	boardId: string
 	columnId: string
+	description?: string
 	title: string
 	cover: string | null
-	memberIds: string[]
-	comments: string[]
+	ownerIds: IUser[]
+	memberIds: IUser[]
+	comments: IComment[]
 	attachments: string[]
 	FE_PLACEHOLDER?: boolean
 }
@@ -33,8 +34,8 @@ export interface IBoard {
 	description: string
 	cover?: string
 	type: 'public' | 'private'
-	ownerIds: string[]
-	memberIds: string[]
+	ownerIds: IUser[]
+	memberIds: IUser[]
 	columnOrderIds: string[]
 	columns: IColumn[]
 }
